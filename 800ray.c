@@ -1,7 +1,8 @@
+typedef struct rayRay rayRay;
 struct rayRay{
     double origin[3];
     double direction[3];
-}
+};
 
 void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
     ray->origin[0] = orig[0];
@@ -14,20 +15,48 @@ void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
 
 int rayIntersection(rayRay *ray, sphereSphere *sphere){
     double c[3];
-    vecSubtract(3, ray->origin, sphere->position, c);
+    vecSubtract(3, sphere->position, ray->origin, c);
     double v = vecDot(3, (c), ray->direction);
     double d = (sphere->radius * sphere->radius) - (vecDot(3, (c), (c)) - (v * v));
-    //no intersection
-    if(d < 0)
+    if(d < 0){
+        printf("no dice\n");
         return -1;
+    }
     else{
+        printf("an intersection!\n");
         double disc = sqrt(d);
-        double vMinusDisc[3];
         double vMinusDiscTimesV[3];
-        vecSubtract(3, v, disc, vMinusDisc);
+        double vMinusDisc = v - disc;
         vecScale(3, vMinusDisc, ray->direction, vMinusDiscTimesV); 
         vecAdd(3, ray->origin, vMinusDiscTimesV, objectPoint);
-        vecSubtract(3, sphere->position, objectPoint, objectNormal);
+        vecSubtract(3, objectPoint, sphere->position, objectNormal);
         return 0;
     }
+}
+
+int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
+    double l[3];
+    vecSubtract(3, sphere->position, ray->origin, l);
+    double tca = vecDot(3, l, ray->direction);
+    if(tca < 0)
+        return -1;
+    double dTwo = vecDot(3, l, l) - (tca * tca);
+    double radiusSquared = sphere->radius * sphere->radius;
+    if(dTwo > radiusSquared)
+        return -1;
+    double thc = sqrt(radiusSquared - dTwo);
+    double tZero = tca - thc; 
+    double tOne = tca + thc;
+    if(tZero > tOne){
+        double temp = tZero;
+        tZero = tOne;
+        tOne = temp;
+    }
+    double tTimesDir[3];
+    double normal[3];
+    vecScale(3, tZero, ray->direction, tTimesDir);
+    vecAdd(3, ray->origin, tTimesDir, objectPoint);
+    vecSubtract(3, objectPoint, sphere->position, normal);
+    vecUnit(3, normal, objectNormal);
+    return 0;
 }

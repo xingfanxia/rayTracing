@@ -6,8 +6,8 @@
 #include "000pixel.h"
 #include "stb_image.h"
 #include "800light.c"
-#include "800matrix.c"
 #include "800vector.c"
+#include "800matrix.c"
 #include "800sphere.c"
 
 
@@ -21,13 +21,14 @@ int objectNum;
 double objectNormal[3];
 double objectPoint[3];
 double camPos[3] = {0.0, 0.0, 0.0};
+double shiny = 100.0;
 
 #include "800ray.c"
 
 void initialize(void){
     double position[3] = {2.0, 5.0, -6.0};
     double color[3] = {1.0, 0.0, 0.0};
-    sphereInitialize(&sphereOne, position, color 2.0);
+    sphereInitialize(&sphereOne, position, color, 2.0);
     
     position[0] = -3.0;
     position[1] = -4.0;
@@ -35,7 +36,7 @@ void initialize(void){
     color[0] = 0.0;
     color[0] = 1.0;
     color[0] = 0.0;
-    sphereInitialize(&sphereTwo, position, 3.0);
+    sphereInitialize(&sphereTwo, position, color, 3.0);
     
     objectNum = 2;
     sphere[0] = sphereOne;
@@ -63,7 +64,9 @@ void render(void){
             rayInitialize(&ray, orig, finalDir);
             
             for(int k = 0; k < objectNum; k += 1){    
-                if(rayIntersection(&ray, &sphere) != -1){
+                printf("intersection?\n");
+                if(rayIntersectionAttempt(&ray, &sphere[k]) != -1){
+                    printf("there was an intersection\n");
                     double rgb[3];
                     rgb[0] = sphere[k].color[0];
                     rgb[1] = sphere[k].color[1];
@@ -107,7 +110,7 @@ void render(void){
                     else{
                         specIntensity = 0;
                     }
-                    specIntensity = pow(specIntensity, unif[renUNIFSHINY]);
+                    specIntensity = pow(specIntensity, shiny);
                     rgb[0] = rgb[0] * (difIntensity + 0.1) * light.color[0] + specIntensity;
                     rgb[1] = rgb[1] * (difIntensity + 0.1) * light.color[1] + specIntensity;
                     rgb[2] = rgb[2] * (difIntensity + 0.1) * light.color[2] + specIntensity;
@@ -120,18 +123,20 @@ void render(void){
 }
 
 int main(void){
-    if (pixInitialize(width, height, "Pixel Stuff") != 0)
+    if (pixInitialize(width, height, "Ray Tracing") != 0)
 		return 1;
 	else {
-	    pixSetTimeStepHandler(handleTimeStep);
-        pixSetKeyUpHandler(handleKeyUp);
 	    pixClearRGB(0.0, 0.0, 0.0);
+	    printf("cleared\n");
 	    
 	    
         initialize();
+        printf("initialized\n");
         render();
+        printf("rendered\n");
 	    	    
         pixRun();
 
         return 0;
+    }
 }

@@ -1,7 +1,8 @@
+typedef struct lightLight lightLight;
 struct lightLight{
     double translation[3];
     double color[3];
-}
+};
 
 void lightInitialize(lightLight *light, double transl[3], double col[3]){
     light->translation[0] = transl[0];
