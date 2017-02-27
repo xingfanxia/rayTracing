@@ -28,7 +28,7 @@ double shiny = 100.0;
 void initialize(void){
     double position[3] = {2.0, 5.0, -6.0};
     double color[3] = {1.0, 0.0, 0.0};
-    sphereInitialize(&sphereOne, position, color, 2.0);
+    sphereInitialize(&sphereOne, position, color, 10.0);
     
     position[0] = -3.0;
     position[1] = -4.0;
@@ -36,7 +36,7 @@ void initialize(void){
     color[0] = 0.0;
     color[0] = 1.0;
     color[0] = 0.0;
-    sphereInitialize(&sphereTwo, position, color, 3.0);
+    sphereInitialize(&sphereTwo, position, color, 8.0);
     
     objectNum = 2;
     sphere[0] = sphereOne;
