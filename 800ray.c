@@ -24,6 +24,7 @@ int rayIntersection(rayRay *ray, sphereSphere *sphere){
     }
     else{
         printf("an intersection!\n");
+        return 0;
         double disc = sqrt(d);
         double vMinusDiscTimesV[3];
         double vMinusDisc = v - disc;
@@ -36,15 +37,17 @@ int rayIntersection(rayRay *ray, sphereSphere *sphere){
 
 int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double l[3];
-    vecSubtract(3, sphere->position, ray->origin, l);
+    vecSubtract(3, sphere->position, camPos, l);
     double tca = vecDot(3, l, ray->direction);
+    printf("tca: %f\n", tca);
     if(tca < 0)
         return -1;
     double dTwo = vecDot(3, l, l) - (tca * tca);
     double radiusSquared = sphere->radius * sphere->radius;
     if(dTwo > radiusSquared)
         return -1;
-    double thc = sqrt(radiusSquared - dTwo);
+    return 0;
+    /*double thc = sqrt(radiusSquared - dTwo);
     double tZero = tca - thc; 
     double tOne = tca + thc;
     if(tZero > tOne){
@@ -55,8 +58,8 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double tTimesDir[3];
     double normal[3];
     vecScale(3, tZero, ray->direction, tTimesDir);
-    vecAdd(3, ray->origin, tTimesDir, objectPoint);
+    vecAdd(3, camPos, tTimesDir, objectPoint);
     vecSubtract(3, objectPoint, sphere->position, normal);
     vecUnit(3, normal, objectNormal);
-    return 0;
+    return 0;*/
 }
