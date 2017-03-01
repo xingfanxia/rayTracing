@@ -27,9 +27,10 @@ rayRay ray;
 
 void initialize(void){
     double position[3] = {2.0, 5.0, -6.0};
-    double color[3] = {1.0, 0.5, 0.0};
+    double color[3] = {1.0, 0.0, 0.0};
     sphereInitialize(&sphereOne, position, color, 2.0);
     
+    //green
     position[0] = -3.0;
     position[1] = -4.0;
     position[2] = -10.0;
@@ -38,7 +39,7 @@ void initialize(void){
     color[2] = 0.0;
     sphereInitialize(&sphereTwo, position, color, 3.0);
 
-    
+    //blue
     position[0] = 7.0;
     position[1] = 3.0;
     position[2] = -5.0;
@@ -47,6 +48,7 @@ void initialize(void){
     color[2] = 1.0;
     sphereInitialize(&sphereThree, position, color, 2.0);
     
+    //orange
     position[0] = 1.0;
     position[1] = -1.0;
     position[2] = -15.0;
@@ -55,6 +57,7 @@ void initialize(void){
     color[2] = 0.0;
     sphereInitialize(&sphereFour, position, color, 4.0);
     
+    //purple
     position[0] = -3.0;
     position[1] = 4.0;
     position[2] = -18.0;
@@ -71,7 +74,7 @@ void initialize(void){
     sphere[4] = sphereFive;
     
     position[0] = 5.0;
-    position[1] = 5.0;
+    position[1] = 8.0;
     position[2] = 5.0;
     color[0] = 1.0;
     color[1] = 1.0;
@@ -97,16 +100,16 @@ void render(void){
                     rgb[1] = sphere[k].color[1];
                     rgb[2] = sphere[k].color[2];
                     
-                    printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
+                    //printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
                     
                     double lightNormal[3];
                     double unitLightNormal[3];
-                    vecSubtract(3, sphere[k].position, ray.point, lightNormal);
+                    vecSubtract(3, light.translation, ray.intersection, lightNormal);
                     vecUnit(3, lightNormal, unitLightNormal);
-                    printf("light normal: %f, %f, %f\n", unitLightNormal[0], unitLightNormal[1], unitLightNormal[2]);
-                    printf("object normal: %f, %f, %f\n", ray.normal[0], ray.normal[1], ray.normal[2]);
+                    //printf("light normal: %f, %f, %f\n", unitLightNormal[0], unitLightNormal[1], unitLightNormal[2]);
+                    //printf("object normal: %f, %f, %f\n", ray.normal[0], ray.normal[1], ray.normal[2]);
                     double difIntensity = vecDot(3, unitLightNormal, ray.normal);
-                    printf("difIntensity: %f\n", difIntensity);
+                    //printf("difIntensity: %f\n", difIntensity);
                     
                     if(difIntensity < 0){
                         difIntensity = 0.1;
@@ -115,7 +118,7 @@ void render(void){
                     rgb[0] = rgb[0] * difIntensity * light.color[0];
                     rgb[1] = rgb[1] * difIntensity * light.color[1];
                     rgb[2] = rgb[2] * difIntensity * light.color[2];
-                    printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
+                    //printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
                     pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
                 }
             }
