@@ -26,7 +26,8 @@ int objectNum;
 rayRay ray;
 
 void initialize(void){
-    double position[3] = {2.0, 5.0, -6.0};
+    //red
+    double position[3] = {2.0, 1.8, -3.0};
     double color[3] = {1.0, 0.0, 0.0};
     sphereInitialize(&sphereOne, position, color, 2.0);
     
@@ -40,8 +41,8 @@ void initialize(void){
     sphereInitialize(&sphereTwo, position, color, 3.0);
 
     //blue
-    position[0] = 7.0;
-    position[1] = 3.0;
+    position[0] = 2.0;
+    position[1] = 1.3;
     position[2] = -5.0;
     color[0] = 0.0;
     color[1] = 0.0;
@@ -74,7 +75,7 @@ void initialize(void){
     sphere[4] = sphereFive;
     
     position[0] = 5.0;
-    position[1] = 8.0;
+    position[1] = 5.0;
     position[2] = 5.0;
     color[0] = 1.0;
     color[1] = 1.0;

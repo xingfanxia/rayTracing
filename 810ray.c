@@ -21,26 +21,6 @@ void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
     ray->normal[2] = 0.0;
 }
 
-int rayIntersection(rayRay *ray, sphereSphere *sphere){
-    double c[3];
-    vecSubtract(3, sphere->position, ray->origin, c);
-    double v = vecDot(3, (c), ray->direction);
-    double d = (sphere->radius * sphere->radius) - (vecDot(3, (c), (c)) - (v * v));
-    if(d < 0){
-        //printf("no dice\n");
-        return -1;
-    }
-    else{
-        //printf("an intersection!\n");
-        double disc = sqrt(d);
-        double vMinusDiscTimesV[3];
-        double vMinusDisc = v - disc;
-        vecScale(3, vMinusDisc, ray->direction, vMinusDiscTimesV); 
-        vecAdd(3, ray->origin, vMinusDiscTimesV, ray->intersection);
-        vecSubtract(3, ray->intersection, sphere->position, ray->normal);
-        return 0;
-    }
-}
 
 int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double l[3];
