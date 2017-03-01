@@ -43,7 +43,7 @@ void vecSet(int dim, double v[],...){
 
 /* Returns the dot product of the dim-dimensional vectors v and w. */
 double vecDot(int dim, double v[], double w[]){
-    double toReturn;
+    double toReturn = 0.0;
     for(int i = 0; i < dim; i += 1){
         toReturn += v[i] * w[i];
     }
@@ -52,7 +52,7 @@ double vecDot(int dim, double v[], double w[]){
 
 /* Returns the length of the dim-dimensional vector v. */
 double vecLength(int dim, double v[]){
-    double toReturn;
+    double toReturn = 0.0;
     for(int i = 0; i < dim; i += 1){
         toReturn += v[i] * v[i];
     }
@@ -64,7 +64,7 @@ double vecLength(int dim, double v[]){
 non-zero, then also places a scaled version of v into the dim-dimensional 
 vector unit, so that unit has length 1. */
 double vecUnit(int dim, double v[], double unit[]){
-    double toReturn;
+    double toReturn = 0.0;
     for(int i = 0; i < dim; i += 1){
         toReturn += v[i] * v[i];
     }
