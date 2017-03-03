@@ -31,14 +31,14 @@ rayRay ray;
 
 void initialize(void){
     //red
-    double position[3] = {2.0, 1.8, -5.0};
+    double position[3] = {2.0, 1.8, -11.0};
     double color[3] = {1.0, 0.0, 0.0};
     sphereInitialize(&sphereOne, position, color, 2.0);
     
     //green
     position[0] = -3.0;
     position[1] = -4.0;
-    position[2] = -10.0;
+    position[2] = -16.0;
     color[0] = 0.0;
     color[1] = 1.0;
     color[2] = 0.0;
@@ -47,7 +47,7 @@ void initialize(void){
     //blue
     position[0] = 2.0;
     position[1] = -1.3;
-    position[2] = -6.0;
+    position[2] = -13.0;
     color[0] = 0.0;
     color[1] = 0.0;
     color[2] = 1.0;
@@ -56,7 +56,7 @@ void initialize(void){
     //yellow
     position[0] = -1.0;
     position[1] = 1.0;
-    position[2] = -15.0;
+    position[2] = -21.0;
     color[0] = 1.0;
     color[1] = 1.0;
     color[2] = 0.0;
@@ -65,7 +65,7 @@ void initialize(void){
     //purple
     position[0] = -8.0;
     position[1] = 9.0;
-    position[2] = -18.0;
+    position[2] = -24.0;
     color[0] = 1.0;
     color[1] = 0.0;
     color[2] = 1.0;
