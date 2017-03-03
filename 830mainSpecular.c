@@ -1,3 +1,7 @@
+/* compile by 
+     clang 830mainSpecular.c 000pixel.o -lglfw -framework opengl;
+*/
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
 #include <math.h>
@@ -88,7 +92,7 @@ void render(void){
     for(int i = 0; i < height; i += 1){
         for(int j = 0; j < width; j += 1){
             double orig[3] = {0.0, 0.0, 0.0};
-            double screen[3] = {(2.0 * ((double)i / (double)height)) - 1.0, (2.0 * ((double)j / (double)width)) - 1.0, -1.0};
+            double screen[3] = {(2.0 * ((double)i / (double)height)) - 1.0, (2.0 * ((double)j / (double)width)) - 1.0, -1};
             double dir[3];
             vecSubtract(3, screen, orig, dir);
             double finalDir[3];

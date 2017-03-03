@@ -1,4 +1,4 @@
-typedef struct rayRay rayRay;
+ typedef struct rayRay rayRay;
 struct rayRay{
     double origin[3];
     double direction[3];
@@ -28,11 +28,11 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double tca = vecDot(3, l, ray->direction);
     if(tca < 0)
         return -1;
-    double dTwo = vecDot(3, l, l) - (tca * tca);
+    double d_square = vecDot(3, l, l) - (tca * tca);
     double radiusSquared = sphere->radius * sphere->radius;
-    if(dTwo > radiusSquared)
+    if(d_square > radiusSquared)
         return -1;
-    double thc = sqrt(radiusSquared - dTwo);
+    double thc = sqrt(radiusSquared - d_square);
     double tZero = tca - thc; 
     double tOne = tca + thc;
     if(tZero > tOne){
@@ -40,6 +40,13 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
         tZero = tOne;
         tOne = temp;
     }
+
+    if (tZero < 0) {
+        tZero = tOne;
+        if (tZero < 0) return -1;
+    }
+
+
     double tTimesDir[3];
     double normal[3];
     vecScale(3, tZero, ray->direction, tTimesDir);

@@ -1,3 +1,7 @@
+
+/* compile by 
+     clang 840mainReflection.c 000pixel.o -lglfw -framework opengl;
+*/
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
 #include <math.h>
@@ -43,8 +47,8 @@ void initialize(void){
     position[0] = -2.0;
     position[1] = 1.3;
     position[2] = -6.0;
-    color[0] = 0.0;
-    color[1] = 0.0;
+    color[0] = 1.0;
+    color[1] = 1.0;
     color[2] = 1.0;
     sphereInitialize(&sphereThree, position, color, 2.0, 1.0);
     
@@ -64,10 +68,10 @@ void initialize(void){
 }
 
 /* Applies diffuse and specular lighting to each ray that's drawn */
-void lighting(double rgb[3], rayRay ray, int k){
-    rgb[0] = sphere[k].color[0];
-    rgb[1] = sphere[k].color[1];
-    rgb[2] = sphere[k].color[2];
+void lighting(double colorinfo[3], rayRay ray, int k){
+    colorinfo[0] = sphere[k].color[0];
+    colorinfo[1] = sphere[k].color[1];
+    colorinfo[2] = sphere[k].color[2];
                 
     double lightNormal[3];
     double unitLightNormal[3];
@@ -105,9 +109,9 @@ void lighting(double rgb[3], rayRay ray, int k){
                         
     specIntensity = pow(specIntensity, 50);
                         
-    rgb[0] = rgb[0] * difIntensity * light.color[0] + specIntensity;
-    rgb[1] = rgb[1] * difIntensity * light.color[1] + specIntensity;
-    rgb[2] = rgb[2] * difIntensity * light.color[2] + specIntensity;
+    colorinfo[0] = colorinfo[0] * difIntensity * light.color[0] + specIntensity;
+    colorinfo[1] = colorinfo[1] * difIntensity * light.color[1] + specIntensity;
+    colorinfo[2] = colorinfo[2] * difIntensity * light.color[2] + specIntensity;
 }
 
 /* initializes the ray so that it's new origin is where it intersected the object it's now
@@ -118,10 +122,14 @@ void getReflectionRay(rayRay ray){
     
     double prevRayDir[3];
     double unitPrevRayDir[3];
-    vecSubtract(3, ray.intersection, ray.origin, prevRayDir);
+    vecSubtract(3, ray.origin, ray.intersection, prevRayDir);
     vecUnit(3, prevRayDir, unitPrevRayDir);
     
     double dot = vecDot(3, unitPrevRayDir, ray.normal);
+    if (dot <= 0) {
+        printf("if there should be reflection: %f\n", dot);
+        return;
+    }
     double p[3];
     double r[3];
     vecScale(3, dot, ray.normal, p);
@@ -138,10 +146,14 @@ intersected. The reflection color is scaled by the reflectiveness of the sphere 
 void combineColors(double pointColor[3], double reflectionColor[3], sphereSphere sphere,
         double rgb[3]){
     if(sphere.reflection > 0.0){
-        printf("colors are combined\n");
-        rgb[0] = pointColor[0] + (reflectionColor[0] * sphere.reflection);
-        rgb[1] = pointColor[1] + (reflectionColor[1] * sphere.reflection);
-        rgb[2] = pointColor[2] + (reflectionColor[2] * sphere.reflection);
+        // printf("colors are combined\n");
+        rgb[0] = pointColor[0] * (reflectionColor[0] * sphere.reflection);
+        rgb[1] = pointColor[1] * (reflectionColor[1] * sphere.reflection);
+        rgb[2] = pointColor[2] * (reflectionColor[2] * sphere.reflection);
+        // printf("reflection color: %f, %f, %f\n", reflectionColor[0] - pointColor[0], reflectionColor[1] - pointColor[1], reflectionColor[2] - pointColor[2]);   
+        // rgb[0] = (reflectionColor[0] * sphere.reflection);
+        // rgb[1] = (reflectionColor[1] * sphere.reflection);
+        // rgb[2] = (reflectionColor[2] * sphere.reflection);        
     }
     else{
         rgb[0] = pointColor[0];
@@ -175,16 +187,17 @@ void render(void){
                 depthPotential = rayIntersectionAttempt(&ray, &sphere[k]);
                 if(depthPotential != -1 && depthPotential < depth){
                     depth = depthPotential;
-                        
                     lighting(pointColor, ray, k);
-                        
                     if(sphere[k].reflection > 0.0){
                         getReflectionRay(ray);
                         double depthReflect = 1000000.0;
                         for(int l = 0; l < objectNum; l += 1){
+                            if (l == k) continue;
                             double depthPotReflect = rayIntersectionAttempt(&ray, &sphere[l]);
                             if(depthPotReflect != -1 && depthPotReflect < depthReflect){
-                                lighting(reflectionColor, ray, l);    
+                                depthReflect = depthPotReflect;
+                                lighting(reflectionColor, ray, l);
+                                printf("reflection color diff: %f, %f, %f\n", reflectionColor[0] - pointColor[0], reflectionColor[1] - pointColor[1], reflectionColor[2] - pointColor[2]); 
                             }
                         }
                     }
