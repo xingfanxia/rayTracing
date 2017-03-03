@@ -18,7 +18,7 @@ void sphereInitialize(sphereSphere *sphere, double pos[3], double col[3], double
     sphere->radius = r;
     if(reflect > 1.0)
         sphere->reflection = 1.0;
-    else if(reflect < 0.0)
+    else if (reflect < 0.0)
         sphere->reflection = 0.0;
     else
         sphere->reflection = reflect;

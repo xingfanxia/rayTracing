@@ -177,7 +177,7 @@ void render(void){
             double depth = 1000000.0;
             double depthPotential;
             double pointColor[3];
-            double reflectionColor[3];
+            double reflectionColor[3] = {0.0, 0.0, 0.0};
             double rgb[3];
             
             /* Loops over every sphere in the program and tests whether each ray intersects.
@@ -189,19 +189,23 @@ void render(void){
                     depth = depthPotential;
                     lighting(pointColor, ray, k);
                     if(sphere[k].reflection > 0.0){
+                        reflectionColor[0] = 0.0;
+                        reflectionColor[1] = 0.0;
+                        reflectionColor[2] = 0.0;
                         getReflectionRay(ray);
                         double depthReflect = 1000000.0;
                         for(int l = 0; l < objectNum; l += 1){
-                            if (l == k) continue;
+                            //if (l == k) continue;
                             double depthPotReflect = rayIntersectionAttempt(&ray, &sphere[l]);
                             if(depthPotReflect != -1 && depthPotReflect < depthReflect){
                                 depthReflect = depthPotReflect;
+                                printf("reflection color 1: %f, %f, %f\n", reflectionColor[0], reflectionColor[1] , reflectionColor[2]); 
                                 lighting(reflectionColor, ray, l);
-                                printf("reflection color diff: %f, %f, %f\n", reflectionColor[0] - pointColor[0], reflectionColor[1] - pointColor[1], reflectionColor[2] - pointColor[2]); 
+                                combineColors(pointColor, reflectionColor, sphere[k], rgb);
+                                printf("reflection color 2: %f, %f, %f\n", reflectionColor[0], reflectionColor[1] , reflectionColor[2]); 
                             }
                         }
                     }
-                    combineColors(pointColor, reflectionColor, sphere[k], rgb);
                 }
             }       
             pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
