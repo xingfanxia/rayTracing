@@ -13,6 +13,7 @@
 2. Shadow cast randomly. (before reflection)
 3. Randoms lines.
 4. Reflection color is not combined in the manner or not being acquired successfully.
+5. Weird coarse engine.
 
 ### Algorithm
 ```c
