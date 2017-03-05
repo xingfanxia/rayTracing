@@ -11,7 +11,7 @@
 #include "stb_image.h"
 #include "800vector.c"
 #include "800matrix.c"
-#include "860sphere.c"
+#include "800sphere.c"
 #include "810light.c"
 
 lightLight light;
@@ -30,7 +30,7 @@ double camPhi;
 double camTheta;
 
 #include "860camera.c"
-#include "860ray.c"
+#include "820ray.c"
 
 rayRay ray;
 camCamera cam;
@@ -77,43 +77,43 @@ void initialize(void){
     //red
     double position[3] = {2.0, 1.8, -10.0};
     double color[3] = {1.0, 0.0, 0.0};
-    sphereInitialize(&sphereOne, position, color, 2.0, 0.0);
+    sphereInitialize(&sphereOne, position, color, 2.0);
     
     //green
     position[0] = -3.0;
     position[1] = -4.0;
-    position[2] = -25.0;
+    position[2] = -14.0;
     color[0] = 0.0;
     color[1] = 1.0;
     color[2] = 0.0;
-    sphereInitialize(&sphereTwo, position, color, 4.0, 0.0);
+    sphereInitialize(&sphereTwo, position, color, 4.0);
 
     //blue
     position[0] = 2.0;
     position[1] = -1.3;
-    position[2] = -3.0;
+    position[2] = -8.0;
     color[0] = 0.0;
     color[1] = 0.0;
     color[2] = 1.0;
-    sphereInitialize(&sphereThree, position, color, 2.0, 0.0);
+    sphereInitialize(&sphereThree, position, color, 2.0);
     
     //yellow
     position[0] = -1.0;
     position[1] = 1.0;
-    position[2] = -18.0;
+    position[2] = -17.0;
     color[0] = 1.0;
     color[1] = 1.0;
     color[2] = 0.0;
-    sphereInitialize(&sphereFour, position, color, 4.0, 0.0);
+    sphereInitialize(&sphereFour, position, color, 4.0);
     
     //purple
     position[0] = -8.0;
     position[1] = 9.0;
-    position[2] = -32.0;
+    position[2] = -20.0;
     color[0] = 1.0;
     color[1] = 0.0;
     color[2] = 1.0;
-    sphereInitialize(&sphereFive, position, color, 5.0, 0.0);
+    sphereInitialize(&sphereFive, position, color, 5.0);
     
     objectNum = 5;
     sphere[0] = sphereOne;
@@ -135,7 +135,7 @@ void initialize(void){
     camTheta = 0.0;
     camTarget[0] = 0.0;
     camTarget[1] = 0.0;
-    camTarget[2] = -20.0;
+    camTarget[2] = -5.0;
     camUpdateViewing(&cam);
 }
 
@@ -225,9 +225,9 @@ void updateSpheres(void){
             sphere[i].position[2], 1.0};
         double vary[4];
         mat441Multiply(cam.viewing, transformVec, vary);
-        sphere[i].varying[0] = vary[0];
-        sphere[i].varying[1] = vary[1];
-        sphere[i].varying[2] = vary[2];
+        sphere[i].position[0] = vary[0];
+        sphere[i].position[1] = vary[1];
+        sphere[i].position[2] = vary[2];
     }
 }
 
@@ -238,13 +238,10 @@ void handleTimeStep(double oldTime, double newTime) {
         printf("alpha: %f\n", nodeD.unif[renUNIFALPHA]);
         printf("phi: %f\n", nodeD.unif[renUNIFPHI]);*/
 	}
-	if(update == 1){
-	    update = 0;
 	    camUpdateViewing(&cam);
 	    updateSpheres();
-	    pixClearRGB(0.0, 0.0, 0.0);
+	    //pixClearRGB(0.0, 0.0, 0.0);
 	    render();
-	}
 }
 
 int main(void){

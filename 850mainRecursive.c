@@ -120,12 +120,9 @@ the normal vector */
 void getReflectionRay(rayRay ray, rayRay rayTwo){
     double orig[3] = {ray.intersection[0], ray.intersection[1], ray.intersection[2]};
     
-    double prevRayDir[3];
-    double unitPrevRayDir[3];
-    vecSubtract(3, ray.origin, ray.intersection, prevRayDir);
-    vecUnit(3, prevRayDir, unitPrevRayDir);
+    double prevRayDir[3] = {-ray.direction[0], -ray.direction[1], -ray.direction[2]};
     
-    double dot = vecDot(3, unitPrevRayDir, ray.normal);
+    double dot = vecDot(3, prevRayDir, ray.normal);
     if (dot <= 0) {
         return;
     }
@@ -133,7 +130,7 @@ void getReflectionRay(rayRay ray, rayRay rayTwo){
     double r[3];
     vecScale(3, dot, ray.normal, p);
     vecScale(3, 2.0, p, p);
-    vecSubtract(3, p, unitPrevRayDir, r);
+    vecSubtract(3, p, prevRayDir, r);
     
     double finalDir[3];
     vecUnit(3, r, finalDir);
@@ -143,25 +140,29 @@ void getReflectionRay(rayRay ray, rayRay rayTwo){
 /* This combines the reflection color and the point color of the sphere that's been
 intersected. The reflection color is scaled by the reflectiveness of the sphere in question. */
 void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sphere,
-        rayRay ray, double rgbCol[3]){
-    if(ray.reflection > 0.0){
-        // printf("colors are combined\n");
+        int reflection, double rgbCol[3]){
+    if(reflection == 1){
+        //printf("yes\n");
         rgbCol[0] = pointCol[0] * (reflectionCol[0] * sphere.reflection);
         rgbCol[1] = pointCol[1] * (reflectionCol[1] * sphere.reflection);
         rgbCol[2] = pointCol[2] * (reflectionCol[2] * sphere.reflection);
-        // printf("reflection color: %f, %f, %f\n", reflectionColor[0] - pointColor[0], reflectionColor[1] - pointColor[1], reflectionColor[2] - pointColor[2]);   
+        printf("reflection color: %f, %f, %f\n", rgbCol[0], rgbCol[1], rgbCol[2]);   
         // rgb[0] = (reflectionColor[0] * sphere.reflection);
         // rgb[1] = (reflectionColor[1] * sphere.reflection);
         // rgb[2] = (reflectionColor[2] * sphere.reflection);        
     }
     else{
+        //printf("no\n");
         rgbCol[0] = pointCol[0];
         rgbCol[1] = pointCol[1];
         rgbCol[2] = pointCol[2];
+        printf("color: %f, %f, %f\n", rgbCol[0], rgbCol[1], rgbCol[2]);
     }
 }
 
-void traceRay(rayRay ray, int index, double depth, double rgb[3]){
+int traceRay(rayRay ray, int index, double depth, double rgb[3]){
+    int toReturn = 0;
+    int reflection = 0;
     double depthPotential;
     double pointColor[3];
     double reflectionColor[3];
@@ -169,18 +170,20 @@ void traceRay(rayRay ray, int index, double depth, double rgb[3]){
     depthPotential = rayIntersectionAttempt(&ray, &sphere[index]);
     if(depthPotential != -1 && depthPotential < depth){
         depth = depthPotential;
+        toReturn = 1;
         lighting(pointColor, ray, index);
         if(sphere[index].reflection > 0.0){
             rayRay rayTwo;    
             getReflectionRay(ray, rayTwo);
-            traceRay(rayTwo, 0, 1000000, reflectionColor);
+            reflection = traceRay(rayTwo, 0, 1000000, reflectionColor);
         }                    
-        combineColors(pointColor, reflectionColor, sphere[index], ray, rgb);
+        combineColors(pointColor, reflectionColor, sphere[index], reflection, rgb);
+        toReturn = 1;
     }
     index += 1;
-    printf("index: %d\n", index);
     if(index < objectNum)
         traceRay(ray, index, depth, rgb);
+    return toReturn;
 }
 
 void render(void){
