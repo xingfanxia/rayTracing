@@ -12,7 +12,7 @@
 #include "800vector.c"
 #include "800matrix.c"
 #include "860sphere.c"
-#include "810light.c"
+#include "860light.c"
 
 lightLight light;
 sphereSphere sphereOne;
@@ -82,7 +82,7 @@ void initialize(void){
     //green
     position[0] = -3.0;
     position[1] = -4.0;
-    position[2] = -25.0;
+    position[2] = -15.0;
     color[0] = 0.0;
     color[1] = 1.0;
     color[2] = 0.0;
@@ -91,7 +91,7 @@ void initialize(void){
     //blue
     position[0] = 2.0;
     position[1] = -1.3;
-    position[2] = -3.0;
+    position[2] = -8.0;
     color[0] = 0.0;
     color[1] = 0.0;
     color[2] = 1.0;
@@ -109,7 +109,7 @@ void initialize(void){
     //purple
     position[0] = -8.0;
     position[1] = 9.0;
-    position[2] = -32.0;
+    position[2] = -22.0;
     color[0] = 1.0;
     color[1] = 0.0;
     color[2] = 1.0;
@@ -135,7 +135,7 @@ void initialize(void){
     camTheta = 0.0;
     camTarget[0] = 0.0;
     camTarget[1] = 0.0;
-    camTarget[2] = -20.0;
+    camTarget[2] = -10.0;
     camUpdateViewing(&cam);
 }
 
@@ -171,7 +171,7 @@ void render(void){
                     
                         double lightNormal[3];
                         double unitLightNormal[3];
-                        vecSubtract(3, light.translation, ray.intersection, lightNormal);
+                        vecSubtract(3, light.varying, ray.intersection, lightNormal);
                         vecUnit(3, lightNormal, unitLightNormal);
                         //printf("light normal: %f, %f, %f\n", unitLightNormal[0], unitLightNormal[1], unitLightNormal[2]);
                         //printf("object normal: %f, %f, %f\n", ray.normal[0], ray.normal[1], ray.normal[2]);
@@ -219,7 +219,7 @@ void render(void){
     }
 }
 
-void updateSpheres(void){
+void updateVaryings(void){
     for(int i = 0; i < objectNum; i += 1){
         double transformVec[4] = {sphere[i].position[0], sphere[i].position[1], 
             sphere[i].position[2], 1.0};
@@ -229,6 +229,13 @@ void updateSpheres(void){
         sphere[i].varying[1] = vary[1];
         sphere[i].varying[2] = vary[2];
     }
+    double lightVec[4] = {light.translation[0], light.translation[1], 
+        light.translation[2], 1.0};
+    double lightVary[4];
+    mat441Multiply(cam.viewing, lightVec, lightVary);
+    light.varying[0] = lightVary[0];
+    light.varying[1] = lightVary[1];
+    light.varying[2] = lightVary[2];
 }
 
 void handleTimeStep(double oldTime, double newTime) {
@@ -241,7 +248,7 @@ void handleTimeStep(double oldTime, double newTime) {
 	if(update == 1){
 	    update = 0;
 	    camUpdateViewing(&cam);
-	    updateSpheres();
+	    updateVaryings();
 	    pixClearRGB(0.0, 0.0, 0.0);
 	    render();
 	}
@@ -261,7 +268,7 @@ int main(void){
         initialize();
         printf("initialized\n");
         camUpdateViewing(&cam);
-	    updateSpheres();
+	    updateVaryings();
         render();
         printf("rendered\n");
 	    	    
