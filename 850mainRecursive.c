@@ -1,6 +1,6 @@
 
 /* compile by 
-     clang 840mainReflection.c 000pixel.o -lglfw -framework opengl;
+     clang 850mainRecursive.c 000pixel.o -lglfw -framework opengl;
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
