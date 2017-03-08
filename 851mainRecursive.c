@@ -1,6 +1,6 @@
 
 /* compile by 
-     clang 850mainRecursive.c 000pixel.o -lglfw -framework opengl;
+     clang 851mainRecursive.c 000pixel.o -lglfw -framework opengl;
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
@@ -160,7 +160,7 @@ void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sph
     }
 }
 
-int traceRay(rayRay ray, int index, double depth, double rgb[3]){
+void traceRay(rayRay ray, int index, double depth, double rgb[3]){
     int toReturn = 0;
     int reflection = 0;
     double depthPotential;
@@ -175,15 +175,16 @@ int traceRay(rayRay ray, int index, double depth, double rgb[3]){
         if(sphere[index].reflection > 0.0){
             rayRay rayTwo;    
             getReflectionRay(ray, rayTwo);
-            reflection = traceRay(rayTwo, 0, 1000000, reflectionColor);
+            traceRay(rayTwo, 0, 1000000, reflectionColor);
         }                    
         combineColors(pointColor, reflectionColor, sphere[index], reflection, rgb);
-        toReturn = 1;
+        // toReturn = 1;
+    } else {
+        return;
     }
-    index += 1;
-    if(index < objectNum)
-        traceRay(ray, index, depth, rgb);
-    return toReturn;
+    // index += 1;
+    // if(index < objectNum)
+    //     traceRay(ray, index, depth, rgb);
 }
 
 void render(void){

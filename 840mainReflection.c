@@ -118,7 +118,7 @@ void lighting(double colorinfo[3], rayRay ray, int k){
 reflecting off of. the direction of the new ray is the reflection of direction value across
 the normal vector */
 void getReflectionRay(rayRay ray){
-    double orig[3] = {ray.intersection[0], ray.intersection[1], ray.intersection[2]};
+    double orig[3] = {ray.intersection[0]+0.4, ray.intersection[1]+0.4, ray.intersection[2]+0.4};
     
     double prevRayDir[3];
     double unitPrevRayDir[3];
