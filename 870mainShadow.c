@@ -1,6 +1,5 @@
 /* compile by 
-    camera: 860mainCamera.c
-    clang 860mainCamera.c 000pixel.o -lglfw -framework opengl
+     clang 830mainSpecular.c 000pixel.o -lglfw -framework opengl;
 */
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -71,12 +70,12 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 		else if(key == 81){
 		    camRho -= 1.0; 
 		    update = 1;
-		}
+		} 
 }
 
 void initialize(void){
     //red
-    double position[3] = {2.0, 1.8, -10.0};
+    double position[3] = {4.0, 4.0, -4.0};
     double color[3] = {1.0, 0.0, 0.0};
     sphereInitialize(&sphereOne, position, color, 2.0, 0.0);
     
@@ -91,7 +90,7 @@ void initialize(void){
 
     //blue
     position[0] = 2.0;
-    position[1] = -1.3;
+    position[1] = 2.0;
     position[2] = -8.0;
     color[0] = 0.0;
     color[1] = 0.0;
@@ -176,38 +175,53 @@ void render(void){
                         vecUnit(3, lightNormal, unitLightNormal);
                         //printf("light normal: %f, %f, %f\n", unitLightNormal[0], unitLightNormal[1], unitLightNormal[2]);
                         //printf("object normal: %f, %f, %f\n", ray.normal[0], ray.normal[1], ray.normal[2]);
+                        rayRay rayTwo;
+                        int intersect = 0;
                         double difIntensity;
-                        double dot = vecDot(3, unitLightNormal, ray.normal);
-                        //printf("difIntensity: %f\n", difIntensity);
-                    
-                        if(dot < 0.1)
-                            difIntensity = 0.1;
-                        else
-                            difIntensity = dot;
-                                                
-                        double camDir[3];
-                        double unitCamDir[3];
-                        
-                        vecSubtract(3, ray.origin, ray.intersection, camDir);
-                        vecUnit(3, camDir, unitCamDir);
-                        
-                        double p[3];
-                        double r[3];
-                        vecScale(3, dot, ray.normal, p);
-                        vecScale(3, 2.0, p, p);
-                        vecSubtract(3, p, unitLightNormal, r);
                         double specIntensity;
+                        double origin[3] = {ray.intersection[0], ray.intersection[1], ray.intersection[2]};
+                        rayInitialize(&rayTwo, origin, unitLightNormal);
+                        for(int l = 0; l < objectNum; l += 1){
+                            int sphereIntersection = rayIntersectionAttempt(&ray, &sphere[l]);
+                            //printf("sphere: %d\n", sphereIntersection);
+                            if(sphereIntersection == -1 && intersect == -1 && l != k){
+                                
+                                double dot = vecDot(3, unitLightNormal, ray.normal);
+                                //printf("difIntensity: %f\n", difIntensity);
+                    
+                                if(dot < 0.1)
+                                    difIntensity = 0.1;
+                                else
+                                    difIntensity = dot;
+                                                
+                                double camDir[3];
+                                double unitCamDir[3];
+                        
+                                vecSubtract(3, ray.origin, ray.intersection, camDir);
+                                vecUnit(3, camDir, unitCamDir);
+                        
+                                double p[3];
+                                double r[3];
+                                vecScale(3, dot, ray.normal, p);
+                                vecScale(3, 2.0, p, p);
+                                vecSubtract(3, p, unitLightNormal, r);
     
-                        dot = vecDot(3, unitCamDir, r);
-                        if(dot > 0){
-                            specIntensity = dot;
-                        }
-                        else{
-                            specIntensity = 0;
-                        }
+                                dot = vecDot(3, unitCamDir, r);
+                                if(dot > 0){
+                                    specIntensity = dot;
+                                }
+                                else{
+                                    specIntensity = 0;
+                                }
                         
-                        specIntensity = pow(specIntensity, 50);
-                        
+                                specIntensity = pow(specIntensity, 50);
+                            }
+                            else{
+                                intersect = -1;
+                                difIntensity = 0.1;
+                                specIntensity = 0;
+                            }
+                        }
                         rgb[0] = rgb[0] * difIntensity * light.color[0] + specIntensity;
                         rgb[1] = rgb[1] * difIntensity * light.color[1] + specIntensity;
                         rgb[2] = rgb[2] * difIntensity * light.color[2] + specIntensity;
@@ -237,7 +251,7 @@ void updateVaryings(void){
     light.varying[0] = lightVary[0];
     light.varying[1] = lightVary[1];
     light.varying[2] = lightVary[2];
-    //printf("light: %f, %f, %f\n", light.varying[0], light.varying[1], light.varying[2]);
+    printf("light: %f, %f, %f\n", light.varying[0], light.varying[1], light.varying[2]);
 }
 
 void handleTimeStep(double oldTime, double newTime) {
@@ -247,14 +261,13 @@ void handleTimeStep(double oldTime, double newTime) {
         printf("alpha: %f\n", nodeD.unif[renUNIFALPHA]);
         printf("phi: %f\n", nodeD.unif[renUNIFPHI]);*/
 	}
-	//if(update == 1){
+	if(update == 1){
 	    update = 0;
-	    camTheta += 0.1;
 	    camUpdateViewing(&cam);
 	    updateVaryings();
 	    pixClearRGB(0.0, 0.0, 0.0);
 	    render();
-	//}
+	}
 }
 
 int main(void){

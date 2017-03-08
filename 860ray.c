@@ -44,7 +44,7 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double normal[3];
     vecScale(3, tZero, ray->direction, tTimesDir);
     vecAdd(3, ray->origin, tTimesDir, ray->intersection);
-    vecSubtract(3, ray->intersection, sphere->position, normal);
+    vecSubtract(3, ray->intersection, sphere->varying, normal);
     vecUnit(3, normal, ray->normal);
     return tZero;
 }

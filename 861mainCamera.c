@@ -21,7 +21,10 @@ sphereSphere sphereTwo;
 sphereSphere sphereThree;
 sphereSphere sphereFour;
 sphereSphere sphereFive;
-sphereSphere sphere[5];
+sphereSphere sphereSix;
+sphereSphere sphereSeven;
+sphereSphere sphereEight;
+sphereSphere sphere[8];
 int width = 512;
 int height = 512;
 int objectNum;
@@ -76,52 +79,80 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 
 void initialize(void){
     //red
-    double position[3] = {2.0, 1.8, -10.0};
+    double position[3] = {2.0, 2.0, -5.0};
     double color[3] = {1.0, 0.0, 0.0};
     sphereInitialize(&sphereOne, position, color, 2.0, 0.0);
     
     //green
-    position[0] = -3.0;
-    position[1] = -4.0;
-    position[2] = -15.0;
-    color[0] = 0.0;
-    color[1] = 1.0;
-    color[2] = 0.0;
-    sphereInitialize(&sphereTwo, position, color, 4.0, 0.0);
+    position[0] = 2.0;
+    position[1] = -2.0;
+    position[2] = -8.0;
+    color[0] = 1.0;
+    color[1] = 0.3;
+    color[2] = 0.3;
+    sphereInitialize(&sphereTwo, position, color, 2.0, 0.0);
 
     //blue
-    position[0] = 2.0;
-    position[1] = -1.3;
-    position[2] = -8.0;
-    color[0] = 0.0;
-    color[1] = 0.0;
-    color[2] = 1.0;
+    position[0] = -2.0;
+    position[1] = -2.0;
+    position[2] = -11.0;
+    color[0] = 1.0;
+    color[1] = 1.0;
+    color[2] = 0.0;
     sphereInitialize(&sphereThree, position, color, 2.0, 0.0);
     
     //yellow
-    position[0] = -1.0;
-    position[1] = 1.0;
-    position[2] = -18.0;
-    color[0] = 1.0;
+    position[0] = -2.0;
+    position[1] = 2.0;
+    position[2] = -14.0;
+    color[0] = 0.0;
     color[1] = 1.0;
     color[2] = 0.0;
-    sphereInitialize(&sphereFour, position, color, 4.0, 0.0);
+    sphereInitialize(&sphereFour, position, color, 2.0, 0.0);
     
     //purple
-    position[0] = -8.0;
-    position[1] = 9.0;
-    position[2] = -22.0;
+    position[0] = 2.0;
+    position[1] = 2.0;
+    position[2] = -17.0;
+    color[0] = 0.2;
+    color[1] = 0.2;
+    color[2] = 1.0;
+    sphereInitialize(&sphereFive, position, color, 2.0, 0.0);
+
+    position[0] = 2.0;
+    position[1] = -2.0;
+    position[2] = -20.0;
+    color[0] = 0.0;
+    color[1] = 0.0;
+    color[2] = 1.0;
+    sphereInitialize(&sphereSix, position, color, 2.0, 0.0);
+
+    position[0] = -2.0;
+    position[1] = -2.0;
+    position[2] = -23.0;
     color[0] = 1.0;
     color[1] = 0.0;
     color[2] = 1.0;
-    sphereInitialize(&sphereFive, position, color, 5.0, 0.0);
+    sphereInitialize(&sphereSeven, position, color, 2.0, 0.0);
+
+    position[0] = -2.0;
+    position[1] = 2.0;
+    position[2] = -26.0;
+    color[0] = 1.0;
+    color[1] = 0.3;
+    color[2] = 1.0;
+    sphereInitialize(&sphereEight, position, color, 2.0, 0.0);
     
-    objectNum = 5;
+    objectNum = 8;
     sphere[0] = sphereOne;
     sphere[1] = sphereTwo;
     sphere[2] = sphereThree;
     sphere[3] = sphereFour;
     sphere[4] = sphereFive;
+    sphere[5] = sphereSix;
+    sphere[6] = sphereSeven;
+    sphere[7] = sphereEight;
+
     
     position[0] = -5.0;
     position[1] = -5.0;
