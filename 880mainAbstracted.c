@@ -1,6 +1,6 @@
 
 /* compile by 
-     clang 852mainRecursive.c 000pixel.o -lglfw -framework opengl;
+     clang 880mainAbstracted.c 000pixel.o -lglfw -framework opengl;
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
@@ -11,8 +11,8 @@
 #include "stb_image.h"
 #include "800vector.c"
 #include "800matrix.c"
-#include "840sphere.c"
-#include "810light.c"
+#include "860sphere.c"
+#include "860light.c"
 
 lightLight light;
 sphereSphere sphereOne;
@@ -23,16 +23,60 @@ int width = 512;
 int height = 512;
 int objectNum;
 double camPos[3] = {0.0, 0.0, 0.0};
+double camTarget[3];
+double camRho;
+double camPhi;
+double camTheta;
 
-#include "840ray.c"
+#include "860camera.c"
+#include "860ray.c"
 
 rayRay ray;
+camCamera cam;
+int update = 0;
+
+void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
+		int altOptionIsDown, int superCommandIsDown) {
+	printf("key up %d, shift %d, control %d, altOpt %d, supComm %d\n",
+		key, shiftIsDown, controlIsDown, altOptionIsDown, superCommandIsDown);
+		//d
+		if(key == 68){
+		    camPhi += 0.2;
+		}
+		//a
+		else if(key == 65){
+		    camPhi -= 0.2;
+		}
+		//s
+		else if(key == 83){
+		    camTheta += 0.2;
+		}
+		//w
+		else if(key == 87){
+		    camTheta -= 0.2;
+		}
+		//q
+		else if(key == 69){
+		    camRho += 1.0;
+		}
+		//e
+		else if(key == 81){
+		    camRho -= 1.0; 
+		}
+		//f
+		else if(key == 70){
+		    if(update == 0)
+		        update = 1;
+		    else
+		        update = 0;
+		}
+}
 
 void initialize(void){
     //red
     double position[3] = {2.0, 2.0, -5.0};
     double color[3] = {1.0, 0.0, 0.0};
-    sphereInitialize(&sphereOne, position, color, 2.0, 1.0);
+    sphereInitialize(&sphereOne, position, color, 2.0, 0.0);
     
     //green
     position[0] = -3.0;
@@ -41,7 +85,7 @@ void initialize(void){
     color[0] = 0.0;
     color[1] = 1.0;
     color[2] = 0.0;
-    sphereInitialize(&sphereTwo, position, color, 3.0, 1.0);
+    sphereInitialize(&sphereTwo, position, color, 3.0, 0.0);
 
     //blue
     position[0] = -2.0;
@@ -65,14 +109,18 @@ void initialize(void){
     color[1] = 1.0;
     color[2] = 1.0;
     lightInitialize(&light, position, color);
+    
+    camRho = 5.0;
+    camPhi = 0.0;
+    camTheta = 0.0;
+    camTarget[0] = 0.0;
+    camTarget[1] = 0.0;
+    camTarget[2] = -10.0;
+    camUpdateViewing(&cam);
 }
 
 /* Applies diffuse and specular lighting to each ray that's drawn */
-void lighting(double colorinfo[3], rayRay *ray, int k){
-    colorinfo[0] = sphere[k].color[0];
-    colorinfo[1] = sphere[k].color[1];
-    colorinfo[2] = sphere[k].color[2];
-    //printf("sphere color: %f, %f, %f\n", colorinfo[0], colorinfo[1], colorinfo[2]);
+void lighting(double colorinfo[3], rayRay *ray){
                 
     double lightNormal[3];
     double unitLightNormal[3];
@@ -82,7 +130,7 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
     double difIntensity;
     double dot = vecDot(3, unitLightNormal, ray->normal);
                     
-    if(dot < 0)
+    if(dot < 0.1)
         difIntensity = 0.1;
     else
         difIntensity = dot;
@@ -115,6 +163,25 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
     colorinfo[2] = colorinfo[2] * difIntensity * light.color[2] + specIntensity;
 }
 
+void updateVaryings(void){
+    for(int i = 0; i < objectNum; i += 1){
+        double transformVec[4] = {sphere[i].position[0], sphere[i].position[1], 
+            sphere[i].position[2], 1.0};
+        double vary[4];
+        mat441Multiply(cam.viewing, transformVec, vary);
+        sphere[i].varying[0] = vary[0];
+        sphere[i].varying[1] = vary[1];
+        sphere[i].varying[2] = vary[2];
+    }
+    double lightVec[4] = {light.translation[0], light.translation[1], 
+        light.translation[2], 1.0};
+    double lightVary[4];
+    mat441Multiply(cam.viewing, lightVec, lightVary);
+    light.varying[0] = lightVary[0];
+    light.varying[1] = lightVary[1];
+    light.varying[2] = lightVary[2];
+}
+
 /* initializes the ray so that it's new origin is where it intersected the object it's now
 reflecting off of. the direction of the new ray is the reflection of direction value across
 the normal vector */
@@ -135,17 +202,17 @@ void getReflectionRay(rayRay *ray, rayRay *rayTwo){
     
     double finalDir[3];
     vecUnit(3, r, finalDir);
-    rayInitialize(rayTwo, orig, finalDir, 1);
+    rayInitialize(rayTwo, orig, finalDir);            
 }
 
 /* This combines the reflection color and the point color of the sphere that's been
 intersected. The reflection color is scaled by the reflectiveness of the sphere in question. */
 void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sphere,
-        int reflection, double rgbCol[3]){
+        int reflection, double rgbCol[3], rayRay *ray){
     if(reflection == 1){
         rgbCol[0] = pointCol[0] * (reflectionCol[0] * sphere.reflection);
         rgbCol[1] = pointCol[1] * (reflectionCol[1] * sphere.reflection);
-        rgbCol[2] = pointCol[2] * (reflectionCol[2] * sphere.reflection);        
+        rgbCol[2] = pointCol[2] * (reflectionCol[2] * sphere.reflection);
     }
     else{
         rgbCol[0] = pointCol[0];
@@ -168,17 +235,15 @@ int traceRay(rayRay *ray, int depth, double rgb[3]){
         if(depthPotential != -1 && depthPotential < depth){
             toReturn = 1;
             depth = depthPotential;
-            //printf("point Color before: %f, %f, %f\n", pointColor[0], pointColor[1], pointColor[2]);
-            lighting(pointColor, ray, i);
-            //printf("point Color after: %f, %f, %f\n", pointColor[0], pointColor[1], pointColor[2]);
-        
-            //printf("yes\n");
-            getReflectionRay(ray, &rayTwo);
-            //printf("reflection color before: %f, %f, %f\n", reflectionColor[0], reflectionColor[1], reflectionColor[2]);
-            reflection = traceRay(&rayTwo, 1000000, reflectionColor);
-
-            combineColors(pointColor, reflectionColor, sphere[i], reflection, rgb);
-            //printf("rgb: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
+            pointColor[0] = sphere[i].color[0];
+            pointColor[1] = sphere[i].color[1];
+            pointColor[2] = sphere[i].color[2];
+            
+            if(sphere[i].reflection > 0.0){
+                getReflectionRay(ray, &rayTwo);
+                reflection = traceRay(&rayTwo, 1000000, reflectionColor);
+            }
+            combineColors(pointColor, reflectionColor, sphere[i], reflection, rgb, ray);
         }
     }
     return toReturn;
@@ -194,21 +259,36 @@ void render(void){
             vecSubtract(3, screen, orig, dir);
             double finalDir[3];
             vecUnit(3, dir, finalDir);
-            rayInitialize(&ray, orig, finalDir, 0);
+            rayInitialize(&ray, orig, finalDir);
 
-            double rgb[3] = {0.5, 0.1, 0.5};
+            double rgb[3] = {0.0, 0.0, 0.0};
             
             /* Loops over every sphere in the program and tests whether each ray intersects.
             The ray intersection method returns the depth of the object. The depth is used
             to know which object to draw at each pixel. */
-            //printf("pixel: %d, %d\n", i, j);
-            traceRay(&ray, 1000000, rgb);       
+            traceRay(&ray, 1000000, rgb);
+            lighting(rgb, &ray);      
             pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
         }
     }
 }
 
+void handleTimeStep(double oldTime, double newTime) {
+	if (floor(newTime) - floor(oldTime) >= 1.0){
+		printf("handleTimeStep: %f frames/sec\n", 1.0 / (newTime - oldTime));
+	}
+	if(update == 1){
+	    camTheta += 0.1;
+	}
+	camUpdateViewing(&cam);
+	updateVaryings();
+	pixClearRGB(0.0, 0.0, 0.0);
+	render();
+}
+
 int main(void){
+    pixSetTimeStepHandler(handleTimeStep);
+	pixSetKeyUpHandler(handleKeyUp);
     if (pixInitialize(width, height, "Ray Tracing") != 0)
 		return 1;
 	else {
@@ -218,6 +298,8 @@ int main(void){
 	    
         initialize();
         printf("initialized\n");
+        camUpdateViewing(&cam);
+	    updateVaryings();
         render();
         printf("rendered\n");
 	    	    

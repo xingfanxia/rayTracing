@@ -68,7 +68,7 @@ void initialize(void){
 }
 
 /* Applies diffuse and specular lighting to each ray that's drawn */
-void lighting(double colorinfo[3], rayRay *ray, int k){
+void lighting(double colorinfo[3], rayRay ray, int k){
     colorinfo[0] = sphere[k].color[0];
     colorinfo[1] = sphere[k].color[1];
     colorinfo[2] = sphere[k].color[2];
@@ -76,11 +76,11 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
                 
     double lightNormal[3];
     double unitLightNormal[3];
-    vecSubtract(3, light.translation, ray->intersection, lightNormal);
+    vecSubtract(3, light.translation, ray.intersection, lightNormal);
     vecUnit(3, lightNormal, unitLightNormal);
 
     double difIntensity;
-    double dot = vecDot(3, unitLightNormal, ray->normal);
+    double dot = vecDot(3, unitLightNormal, ray.normal);
                     
     if(dot < 0)
         difIntensity = 0.1;
@@ -90,12 +90,12 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
     double camDir[3];
     double unitCamDir[3];
                         
-    vecSubtract(3, camPos, ray->intersection, camDir);
+    vecSubtract(3, camPos, ray.intersection, camDir);
     vecUnit(3, camDir, unitCamDir);
                         
     double p[3];
     double r[3];
-    vecScale(3, dot, ray->normal, p);
+    vecScale(3, dot, ray.normal, p);
     vecScale(3, 2.0, p, p);
     vecSubtract(3, p, unitLightNormal, r);
     double specIntensity;
@@ -120,6 +120,7 @@ reflecting off of. the direction of the new ray is the reflection of direction v
 the normal vector */
 void getReflectionRay(rayRay *ray, rayRay *rayTwo){
     double orig[3] = {ray->intersection[0], ray->intersection[1], ray->intersection[2]};
+    printf("origin: %f, %f, %f\n", orig[0], orig[1], orig[2]);
     
     double prevRayDir[3] = {-ray->direction[0], -ray->direction[1], -ray->direction[2]};
     
@@ -135,7 +136,11 @@ void getReflectionRay(rayRay *ray, rayRay *rayTwo){
     
     double finalDir[3];
     vecUnit(3, r, finalDir);
+    //printf("final Direction: %f, %f, %f\n", finalDir[0], finalDir[1], finalDir[2]);
     rayInitialize(rayTwo, orig, finalDir, 1);
+    //printf("rayTwo origin in the initializer: %f, %f, %f\n", rayTwo.origin[0], rayTwo.origin[1], rayTwo.origin[2]);
+    //printf("rayTwo direction in the initializer: %f, %f, %f\n", rayTwo.direction[0], rayTwo.direction[1], rayTwo.direction[2]);
+            
 }
 
 /* This combines the reflection color and the point color of the sphere that's been
@@ -143,28 +148,40 @@ intersected. The reflection color is scaled by the reflectiveness of the sphere 
 void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sphere,
         int reflection, double rgbCol[3]){
     if(reflection == 1){
+        //printf("yes\n");
+        //printf("point color: %f, %f, %f\n", pointCol[0], pointCol[1], pointCol[2]);
+        //printf("reflection color: %f, %f, %f\n", reflectionCol[0], reflectionCol[1], reflectionCol[2]);   
         rgbCol[0] = pointCol[0] * (reflectionCol[0] * sphere.reflection);
+        //printf("rgb: %f, point: %f, reflection: %f\n", rgbCol[0], pointCol[0], reflectionCol[0]);
         rgbCol[1] = pointCol[1] * (reflectionCol[1] * sphere.reflection);
-        rgbCol[2] = pointCol[2] * (reflectionCol[2] * sphere.reflection);        
+        rgbCol[2] = pointCol[2] * (reflectionCol[2] * sphere.reflection);
+        // rgb[0] = (reflectionColor[0] * sphere.reflection);
+        // rgb[1] = (reflectionColor[1] * sphere.reflection);
+        // rgb[2] = (reflectionColor[2] * sphere.reflection);
+        //printf("ultimate color: %f, %f, %f\n", rgbCol[0], rgbCol[1], rgbCol[2]);        
     }
     else{
+        //printf("no\n");
         rgbCol[0] = pointCol[0];
         rgbCol[1] = pointCol[1];
         rgbCol[2] = pointCol[2];
+        //printf("color: %f, %f, %f\n", rgbCol[0], rgbCol[1], rgbCol[2]);
     }
 }
 
-int traceRay(rayRay *ray, int depth, double rgb[3]){
+int traceRay(rayRay ray, int depth, double rgb[3]){
     int toReturn = 0;
+    rayRay rayTwo;
     int reflection = 0;
     int depthPotential;
+    int depthReflect = 100000000;
+    int depthPotentialReflect;
     double pointColor[3] = {0.0, 0.0, 0.0};
     double reflectionColor[3] = {0.0, 0.0, 0.0};
-    rayRay rayTwo;
     
     for(int i = 0; i < objectNum; i += 1){
     
-        depthPotential = rayIntersectionAttempt(ray, &sphere[i]);
+        depthPotential = rayIntersectionAttempt(&ray, &sphere[i]);
         if(depthPotential != -1 && depthPotential < depth){
             toReturn = 1;
             depth = depthPotential;
@@ -172,11 +189,20 @@ int traceRay(rayRay *ray, int depth, double rgb[3]){
             lighting(pointColor, ray, i);
             //printf("point Color after: %f, %f, %f\n", pointColor[0], pointColor[1], pointColor[2]);
         
-            //printf("yes\n");
-            getReflectionRay(ray, &rayTwo);
-            //printf("reflection color before: %f, %f, %f\n", reflectionColor[0], reflectionColor[1], reflectionColor[2]);
-            reflection = traceRay(&rayTwo, 1000000, reflectionColor);
-
+            //printf("yes\n");   
+            getReflectionRay(&ray, &rayTwo);
+            printf("rayTwo origin in trace Ray: %f, %f, %f\n", rayTwo.origin[0], rayTwo.origin[1], rayTwo.origin[2]);
+            printf("rayTwo direction in trace Ray: %f, %f, %f\n", rayTwo.direction[0], rayTwo.direction[1], rayTwo.direction[2]);
+            
+            for(int j = 0; j < objectNum; j += 1){
+                depthPotentialReflect = rayIntersectionAttempt(&rayTwo, &sphere[j]);
+                if(depthPotentialReflect != -1 && depthPotentialReflect < depthReflect){
+                    reflection = 1;
+                    depthReflect = depthPotentialReflect;
+                    lighting(reflectionColor, rayTwo, j);
+                    printf("reflection color after: %f, %f, %f\n", reflectionColor[0], reflectionColor[1], reflectionColor[2]);
+                }
+            }
             combineColors(pointColor, reflectionColor, sphere[i], reflection, rgb);
             //printf("rgb: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
         }
@@ -202,7 +228,7 @@ void render(void){
             The ray intersection method returns the depth of the object. The depth is used
             to know which object to draw at each pixel. */
             //printf("pixel: %d, %d\n", i, j);
-            traceRay(&ray, 1000000, rgb);       
+            traceRay(ray, 1000000, rgb);       
             pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
         }
     }

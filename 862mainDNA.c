@@ -53,32 +53,33 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 		//d
 		if(key == 68){
 		    camPhi += 0.2;
-		    update = 1;
 		}
 		//a
 		else if(key == 65){
 		    camPhi -= 0.2;
-		    update = 1;
 		}
 		//s
 		else if(key == 83){
 		    camTheta += 0.2;
-		    update = 1;
 		}
 		//w
 		else if(key == 87){
 		    camTheta -= 0.2;
-		    update = 1;
 		}
 		//q
 		else if(key == 69){
 		    camRho += 1.0;
-		    update = 1;
 		}
 		//e
 		else if(key == 81){
 		    camRho -= 1.0; 
-		    update = 1;
+		}
+		//f
+		else if(key == 70){
+		    if(update == 0)
+		        update = 1;
+		    else
+		        update = 0;
 		}
 }
 
@@ -335,14 +336,13 @@ void handleTimeStep(double oldTime, double newTime) {
         printf("alpha: %f\n", nodeD.unif[renUNIFALPHA]);
         printf("phi: %f\n", nodeD.unif[renUNIFPHI]);*/
 	}
-	//if(update == 1){
-	    update = 0;
+	if(update == 1){
 	    camTheta += 0.1;
-	    camUpdateViewing(&cam);
-	    updateVaryings();
-	    pixClearRGB(0.0, 0.0, 0.0);
-	    render();
-	//}
+	}
+	camUpdateViewing(&cam);
+	updateVaryings();
+	pixClearRGB(0.0, 0.0, 0.0);
+	render();
 }
 
 int main(void){

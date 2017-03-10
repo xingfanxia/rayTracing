@@ -164,13 +164,12 @@ int traceRay(rayRay ray, int index, double depth, double rgb[3]){
     int toReturn = 0;
     int reflection = 0;
     double depthPotential;
-    double pointColor[3];
-    double reflectionColor[3];
+    double pointColor[3] = {0.0, 0.0, 0.0};
+    double reflectionColor[3] = {0.0, 0.0, 0.0};
     
     depthPotential = rayIntersectionAttempt(&ray, &sphere[index]);
     if(depthPotential != -1 && depthPotential < depth){
         depth = depthPotential;
-        toReturn = 1;
         lighting(pointColor, ray, index);
         if(sphere[index].reflection > 0.0){
             rayRay rayTwo;    

@@ -25,6 +25,7 @@ sphereSphere sphere[5];
 int width = 512;
 int height = 512;
 int objectNum;
+double camPos[3] = {0.0, 0.0, 0.0};
 double camTarget[3];
 double camRho;
 double camPhi;

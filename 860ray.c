@@ -46,5 +46,7 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     vecAdd(3, ray->origin, tTimesDir, ray->intersection);
     vecSubtract(3, ray->intersection, sphere->varying, normal);
     vecUnit(3, normal, ray->normal);
-    return tZero;
+    double vecDepth[3];
+    vecSubtract(3, camPos, ray->intersection, vecDepth);
+    return vecLength(3, vecDepth);
 }
