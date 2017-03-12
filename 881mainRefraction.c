@@ -236,6 +236,10 @@ void getRefractionRay(rayRay *ray, rayRay *rayTwo, double refractionIndexBefore,
     rayInitialize(rayTwo, orig, refracted);            
 }
 
+/*
+Fresnel equation to calculate fraction of reflection versus refraction, found here:
+http://blog.demofox.org/2017/01/09/raytracing-reflection-refraction-fresnel-total-internal-reflection-and-beers-law/
+*/
 double fresnel(double leavingRefractIndex, double enteringRefractIndex, rayRay *ray, sphereSphere sphere) {
     double r0 = (leavingRefractIndex - enteringRefractIndex);
     r0 *= r0;
