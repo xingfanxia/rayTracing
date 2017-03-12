@@ -10,11 +10,17 @@ spaceworm: 861effect.c
 spaceworm.o: 861effect.c
 	clang 861effect.c 000pixel.o -lglfw -framework opengl; ./a.out
 
-reflection: 840mainReflection.c
-	clang 840mainReflection.c 000pixel.o -lglfw -framework opengl
+reflection: 880mainAbstracted.c
+	clang 880mainAbstracted.c 000pixel.o -lglfw -framework opengl
 
-reflection.o: 840mainReflection.c
-	clang 840mainReflection.c 000pixel.o -lglfw -framework opengl; ./a.out
+reflection.o: 880mainAbstracted.c
+	clang 880mainAbstracted.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+refraction: 881mainRefraction.c
+	clang 881mainRefraction.c 000pixel.o -lglfw -framework opengl
+
+refraction.o: 881mainRefraction.c
+	clang 881mainRefraction.c 000pixel.o -lglfw -framework opengl; ./a.out
 
 camera: 860mainCamera.c
 	clang 860mainCamera.c 000pixel.o -lglfw -framework opengl
@@ -24,6 +30,7 @@ spiral: 861mainCamera.c
 
 hexspiral: 862mainDNA.c
 	clang 862mainDNA.c 000pixel.o -lglfw -framework opengl
+
 	
 run: a.out
 	./a.out
