@@ -1,6 +1,6 @@
 
 /* compile by 
-     clang 880mainAbstracted.c 000pixel.o -lglfw -framework opengl;
+     clang 910mainShadow.c 000pixel.o -lglfw -framework opengl;
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
@@ -14,7 +14,7 @@
 #include "860sphere.c"
 #include "860light.c"
 
-lightLight light;
+sphereSphere light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
 sphereSphere sphereThree;
@@ -27,6 +27,7 @@ double camTarget[3];
 double camRho;
 double camPhi;
 double camTheta;
+int bounce = 3;
 
 #include "860camera.c"
 #include "860ray.c"
@@ -75,17 +76,17 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 void initialize(void){
     //red
     double position[3] = {2.0, 2.0, -5.0};
-    double color[3] = {1.0, 0.0, 0.0};
-    sphereInitialize(&sphereOne, position, color, 2.0, 1.0);
+    double color[3] = {1.0, 0.1, 0.1};
+    sphereInitialize(&sphereOne, position, color, 2.0, 0.0);
     
     //green
     position[0] = -3.0;
     position[1] = -4.0;
     position[2] = -10.0;
-    color[0] = 0.0;
+    color[0] = 0.1;
     color[1] = 1.0;
-    color[2] = 0.0;
-    sphereInitialize(&sphereTwo, position, color, 3.0, 1.0);
+    color[2] = 0.1;
+    sphereInitialize(&sphereTwo, position, color, 3.0, 0.0);
 
     //blue
     position[0] = -2.0;
@@ -108,7 +109,7 @@ void initialize(void){
     color[0] = 1.0;
     color[1] = 1.0;
     color[2] = 1.0;
-    lightInitialize(&light, position, color);
+    sphereInitialize(&light, position, color, 2.0, 0.0);
     
     camRho = 5.0;
     camPhi = 0.0;
@@ -120,11 +121,14 @@ void initialize(void){
 }
 
 /* Applies diffuse and specular lighting to each ray that's drawn */
-void lighting(double colorinfo[3], rayRay *ray){
+void lighting(double colorinfo[3], rayRay *ray, int k){
+    colorinfo[0] = sphere[k].color[0];
+    colorinfo[1] = sphere[k].color[1];
+    colorinfo[2] = sphere[k].color[2];
                 
     double lightNormal[3];
     double unitLightNormal[3];
-    vecSubtract(3, light.translation, ray->intersection, lightNormal);
+    vecSubtract(3, light.position, ray->intersection, lightNormal);
     vecUnit(3, lightNormal, unitLightNormal);
 
     double difIntensity;
@@ -147,16 +151,32 @@ void lighting(double colorinfo[3], rayRay *ray){
     vecScale(3, 2.0, p, p);
     vecSubtract(3, p, unitLightNormal, r);
     double specIntensity;
-    
-    dot = vecDot(3, unitCamDir, r);
-    if(dot > 0){
-         specIntensity = dot;
+    double unitR[3];
+    vecUnit(3, r, unitR);
+    double orig[3] = {ray->intersection[0], ray->intersection[1], ray->intersection[2]};
+    rayRay rayTwo;
+    rayInitialize(&rayTwo, orig, unitR);
+    int intersect = rayIntersectionAttempt(&rayTwo, &light);
+    if(intersect != -1){
+        specIntensity = 2.0;
     }
-    else{
-        specIntensity = 0;
-    }
+    else
+        specIntensity = 0.1;
                         
     specIntensity = pow(specIntensity, 50);
+    
+    double dir[3];
+    double unitDir[3];
+    vecSubtract(3, light.position, ray->intersection, dir);
+    vecUnit(3, dir, unitDir);
+    rayInitialize(&rayTwo, orig, unitDir);
+    for(int i = 0; i < objectNum; i += 1){
+        intersect = rayIntersectionAttempt(&rayTwo, &sphere[i]);
+    }
+    if(intersect != -1){
+        specIntensity = 0.1;
+        difIntensity = 0.1;
+    }
                         
     colorinfo[0] = colorinfo[0] * difIntensity * light.color[0] + specIntensity;
     colorinfo[1] = colorinfo[1] * difIntensity * light.color[1] + specIntensity;
@@ -173,8 +193,8 @@ void updateVaryings(void){
         sphere[i].varying[1] = vary[1];
         sphere[i].varying[2] = vary[2];
     }
-    double lightVec[4] = {light.translation[0], light.translation[1], 
-        light.translation[2], 1.0};
+    double lightVec[4] = {light.position[0], light.position[1], 
+        light.position[2], 1.0};
     double lightVary[4];
     mat441Multiply(cam.viewing, lightVec, lightVary);
     light.varying[0] = lightVary[0];
@@ -213,7 +233,7 @@ void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sph
         rgbCol[0] = pointCol[0] * (reflectionCol[0] * sphere.reflection);
         rgbCol[1] = pointCol[1] * (reflectionCol[1] * sphere.reflection);
         rgbCol[2] = pointCol[2] * (reflectionCol[2] * sphere.reflection);
-    }
+     }
     else{
         rgbCol[0] = pointCol[0];
         rgbCol[1] = pointCol[1];
@@ -221,29 +241,28 @@ void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sph
     }
 }
 
-int traceRay(rayRay *ray, int depth, double rgb[3]){
+int traceRay(rayRay *ray, int index, int depth, double rgb[3]){
     int toReturn = 0;
+    rayRay rayTwo;
     int reflection = 0;
     int depthPotential;
-    double pointColor[3] = {0.0, 0.0, 0.0};
-    double reflectionColor[3] = {0.0, 0.0, 0.0};
-    rayRay rayTwo;
     
     for(int i = 0; i < objectNum; i += 1){
-    
+        double pointColor[3] = {0.0, 0.0, 0.0};
+        double reflectionColor[3] = {0.0, 0.0, 0.0};
         depthPotential = rayIntersectionAttempt(ray, &sphere[i]);
         if(depthPotential != -1 && depthPotential < depth){
+    
             toReturn = 1;
             depth = depthPotential;
-            pointColor[0] = sphere[i].color[0];
-            pointColor[1] = sphere[i].color[1];
-            pointColor[2] = sphere[i].color[2];
-            
+            lighting(pointColor, ray, i);
+
             if(sphere[i].reflection > 0.0){
                 getReflectionRay(ray, &rayTwo);
-                reflection = traceRay(&rayTwo, 1000000, reflectionColor);
+                reflection = traceRay(&rayTwo, 0, 10000000, reflectionColor);
             }
             combineColors(pointColor, reflectionColor, sphere[i], reflection, rgb, ray);
+
         }
     }
     return toReturn;
@@ -266,8 +285,7 @@ void render(void){
             /* Loops over every sphere in the program and tests whether each ray intersects.
             The ray intersection method returns the depth of the object. The depth is used
             to know which object to draw at each pixel. */
-            traceRay(&ray, 1000000, rgb);
-            lighting(rgb, &ray);      
+            traceRay(&ray, 0, 1000000, rgb);       
             pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
         }
     }
