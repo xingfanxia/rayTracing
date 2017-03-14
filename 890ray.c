@@ -115,10 +115,10 @@ int rayTriangleIntersection(rayRay *ray, double a[], double b[], double c[], poi
     
     makePointVary(vary, a, b, c, point);
     
-    printf("Intersection!\n");
+    /*printf("Intersection!\n");
     printf("a: %f, %f, %f\n", a[0], a[1], a[2]);
     printf("b: %f, %f, %f\n", b[0], b[1], b[2]);
-    printf("c: %f, %f, %f\n", c[0], c[1], c[2]);
+    printf("c: %f, %f, %f\n", c[0], c[1], c[2]);*/
     return t;
 }
 

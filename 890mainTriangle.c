@@ -85,21 +85,21 @@ void initialize(void){
     //triangle two
     aPos[0] = -4.0;
     aPos[1] = 1.0;
-    aPos[2] = -10.0;
+    aPos[2] = -5.0;
     aCol[0] = 1.0;
     aCol[1] = 0.0;
     aCol[2] = 0.0;
     
     bPos[0] = 0.0;
     bPos[1] = 0.0;
-    bPos[2] = -10.0;
+    bPos[2] = -5.0;
     bCol[0] = 0.0;
     bCol[1] = 1.0;
     bCol[2] = 0.0;
     
     cPos[0] = -2.0;
     cPos[1] = 4.0;
-    cPos[2] = -10.0;
+    cPos[2] = -5.0;
     cCol[0] = 0.0;
     cCol[1] = 0.0;
     cCol[2] = 1.0;
@@ -109,21 +109,21 @@ void initialize(void){
     //triangle three
     aPos[0] = -4.0;
     aPos[1] = 1.0;
-    aPos[2] = -10.0;
+    aPos[2] = -5.0;
     aCol[0] = 1.0;
     aCol[1] = 0.0;
     aCol[2] = 0.0;
     
     bPos[0] = 0.0;
     bPos[1] = 0.0;
-    bPos[2] = -10.0;
+    bPos[2] = -5.0;
     bCol[0] = 0.0;
     bCol[1] = 1.0;
     bCol[2] = 0.0;
     
     cPos[0] = -2.0;
     cPos[1] = 4.0;
-    cPos[2] = -10.0;
+    cPos[2] = -5.0;
     cCol[0] = 0.0;
     cCol[1] = 0.0;
     cCol[2] = 1.0;
@@ -150,7 +150,7 @@ void initialize(void){
     camTheta = 0.0;
     camTarget[0] = 0.0;
     camTarget[1] = 0.0;
-    camTarget[2] = -10.0;
+    camTarget[2] = 0.0;
     camUpdateViewing(&cam);
 }
 
@@ -172,7 +172,7 @@ void lighting(double colorinfo[3], rayRay ray, pointVary *vary){
     double difIntensity;
     double dot = vecDot(3, unitLightNormal, ray.normal);
                     
-    if(dot < 0)
+    if(dot < 0.1)
         difIntensity = 0.1;
     else
         difIntensity = dot;
@@ -249,16 +249,15 @@ void updateVaryings(void){
 void traceRay(rayRay ray, int index, int depth, double rgb[3], pointVary *vary){
     int depthPotential;
     
-    depthPotential = makeCounterClockwise(&ray, triangle[index].aVarying, 
-        triangle[index].bVarying, triangle[index].cVarying, vary);
-    if(depthPotential != -1 && depthPotential < depth){
-        depth = depthPotential;
-        lighting(rgb, ray, vary);
+    for(int i = 0; i < objectNum; i += 1){
+        depthPotential = makeCounterClockwise(&ray, triangle[i].aVarying, 
+            triangle[i].bVarying, triangle[i].cVarying, vary);
+        if(depthPotential != -1 && depthPotential < depth){
+            depth = depthPotential;
+            lighting(rgb, ray, vary);
+        }
     }
     //printf("depth potential: %d\n", depthPotential);
-    index += 1;
-    if(index < objectNum)
-        traceRay(ray, index, depth, rgb, vary);
 }
 
 void render(void){

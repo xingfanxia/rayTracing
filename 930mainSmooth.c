@@ -354,24 +354,60 @@ int traceRay(rayRay *ray, int index, int depth, double rgb[3], int bounced){
     return toReturn;
 }
 
+void traceSmoothRay(rayRay *ray, double orig[3], double screen[3], double rgbCol[3]){
+    double rgbOne[3] = {0.0, 0.0, 0.0};
+    double rgbTwo[3] = {0.0, 0.0, 0.0};
+    double rgbThree[3] = {0.0, 0.0, 0.0};
+    double rgbFour[3] = {0.0, 0.0, 0.0};
+    double rgbFive[3] = {0.0, 0.0, 0.0};
+    double rgbSix[3] = {0.0, 0.0, 0.0};
+    double rgbSeven[3] = {0.0, 0.0, 0.0};
+    double rgbEight[3] = {0.0, 0.0, 0.0};
+    double rgbNine[3] = {0.0, 0.0, 0.0};
+    
+    double *rgb[9] = {rgbOne, rgbTwo, rgbThree, rgbFour, rgbFive, rgbSix, rgbSeven,
+        rgbEight, rgbNine};
+    
+    double ratio = 1 / (double) height;
+    
+    for(int i = 0; i < 9; i += 1){
+        //printf("screen: %f, %f, %f\n", screen[0], screen[1], screen[2]);
+        screen[0] = screen[0] + ((double) (i % 3) * ratio);
+        screen[1] = screen[1] + ((double) (i / 3) * ratio);
+        //printf("screen again: %f, %f, %f\n", screen[0], screen[1], screen[2]);
+        rayInitialize(ray, orig, screen);
+        traceRay(ray, 0, 10000000, rgb[i], 0);
+        screen[0] = screen[0] - ((double) (i % 3) * ratio);
+        screen[1] = screen[1] - ((double) (i / 3) * ratio);
+        //printf("screen once more: %f, %f, %f\n", screen[0], screen[1], screen[2]);
+    }
+    
+    double rgbAverage[3] = {0.0, 0.0, 0.0};
+    for(int i = 0; i < 9; i += 1){
+        rgbAverage[0] += rgb[i][0];
+        rgbAverage[1] += rgb[i][1];
+        rgbAverage[2] += rgb[i][2];
+    }
+    rgbCol[0] = rgbAverage[0] / 9;
+    rgbCol[1] = rgbAverage[1] / 9;
+    rgbCol[2] = rgbAverage[2] / 9;
+}
+
 void render(void){
     /* Two for loops to go over every pixel */
     for(int i = 0; i < height; i += 1){
         for(int j = 0; j < width; j += 1){
             double orig[3] = {0.0, 0.0, 0.0};
-            double screen[3] = {(2.0 * ((double)i / (double)height)) - 1.0, (2.0 * ((double)j / (double)width)) - 1.0, -1.0};
             double dir[3];
+            double screen[3] = {(2.0 * ((double)i / (double)height)) - 1.0, (2.0 * ((double)j / (double)width)) - 1.0, -1.0};
             vecSubtract(3, screen, orig, dir);
             double finalDir[3];
             vecUnit(3, dir, finalDir);
             rayInitialize(&ray, orig, finalDir);
-
+            
             double rgb[3] = {0.0, 0.0, 0.0};
             
-            /* Loops over every sphere in the program and tests whether each ray intersects.
-            The ray intersection method returns the depth of the object. The depth is used
-            to know which object to draw at each pixel. */
-            traceRay(&ray, 0, 1000000, rgb, 0);       
+            traceSmoothRay(&ray, orig, screen, rgb);       
             pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
         }
     }
