@@ -183,7 +183,15 @@ A more polished version of 920mainRefraction.
 =========================================================
 ```
 
-To run these files, just follow the `MakeFile` here:
+To run these files, just type in commands defined in `MakeFile` like these:
+
+```bash
+$make Ray
+$make Lighting
+$make Depth
+```
+
+The `MakeFile`:
 
 ```Make
 Ray: 800mainRay.c
