@@ -97,14 +97,11 @@ for every pixel in the scene {
 ├── 940mainFinal.c
 ├── Makefile
 ├── README.md
-├── \\.c
 ├── a.out
 ├── sprintf.c
-├── stb_image.h
-└── untitled
+└── stb_image.h
 
-0 directories, 52 files
-
+0 directories, 50 files
 ```
 
 And among these files, the following are benchmarks we thought worth presenting.
