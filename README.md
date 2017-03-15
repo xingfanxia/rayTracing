@@ -94,14 +94,16 @@ for every pixel in the scene {
 ├── 920mainRefraction.c
 ├── 920ray.c
 ├── 930mainSmooth.c
+├── 931mainSmooth.c
 ├── 940mainFinal.c
 ├── Makefile
 ├── README.md
+├── README.pdf
 ├── a.out
 ├── sprintf.c
 └── stb_image.h
 
-0 directories, 50 files
+0 directories, 52 files
 ```
 
 And among these files, the following are benchmarks we thought worth presenting.
