@@ -97,14 +97,11 @@ for every pixel in the scene {
 ├── 940mainFinal.c
 ├── Makefile
 ├── README.md
-├── \\.c
 ├── a.out
 ├── sprintf.c
-├── stb_image.h
-└── untitled
+└── stb_image.h
 
-0 directories, 52 files
-
+0 directories, 50 files
 ```
 
 And among these files, the following are benchmarks we thought worth presenting.
@@ -183,7 +180,15 @@ A more polished version of 920mainRefraction.
 =========================================================
 ```
 
-To run these files, just follow the `MakeFile` here:
+To run these files, just type in commands defined in `MakeFile` like these:
+
+```bash
+$make Ray
+$make Lighting
+$make Depth
+```
+
+The `MakeFile`:
 
 ```Make
 Ray: 800mainRay.c

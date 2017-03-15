@@ -1,6 +1,6 @@
 
 /* compile by 
-     clang 910mainShadow.c 000pixel.o -lglfw -framework opengl;
+     clang 930mainSmooth.c 000pixel.o -lglfw -framework opengl;
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include <stdio.h>
@@ -19,8 +19,8 @@ sphereSphere sphereOne;
 sphereSphere sphereTwo;
 sphereSphere sphereThree;
 sphereSphere sphere[3];
-int width = 512;
-int height = 512;
+int width = 256;
+int height = 256;
 int objectNum;
 double camPos[3] = {0.0, 0.0, 0.0};
 double camTarget[3];
@@ -376,7 +376,7 @@ void traceSmoothRay(rayRay *ray, double orig[3], double screen[3], double rgbCol
         screen[1] = screen[1] + ((double) (i / 3) * ratio);
         //printf("screen again: %f, %f, %f\n", screen[0], screen[1], screen[2]);
         rayInitialize(ray, orig, screen);
-        traceRay(ray, 0, 10000000, rgb[i], 0);
+        traceRay(ray, 0, 10000000, rgb[i], 3);
         screen[0] = screen[0] - ((double) (i % 3) * ratio);
         screen[1] = screen[1] - ((double) (i / 3) * ratio);
         //printf("screen once more: %f, %f, %f\n", screen[0], screen[1], screen[2]);
