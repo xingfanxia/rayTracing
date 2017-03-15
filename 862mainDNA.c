@@ -30,8 +30,8 @@ sphereSphere sphereEleven;
 sphereSphere sphereTwelve;
 sphereSphere sphere[12];
 
-int width = 1024;
-int height = 1024;
+int width = 512;
+int height = 512;
 int objectNum;
 double camTarget[3];
 double camRho;

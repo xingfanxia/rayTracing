@@ -122,7 +122,7 @@ void render(void){
                         double difIntensity = vecDot(3, unitLightNormal, ray.normal);
                         //printf("difIntensity: %f\n", difIntensity);
                     
-                        if(difIntensity < 0){
+                        if(difIntensity < 0.1){
                             difIntensity = 0.1;
                         }
                     

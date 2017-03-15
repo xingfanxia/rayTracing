@@ -18,7 +18,8 @@ sphereSphere light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
 sphereSphere sphereThree;
-sphereSphere sphere[3];
+sphereSphere sphereFour;
+sphereSphere sphere[4];
 int width = 512;
 int height = 512;
 int objectNum;
@@ -75,13 +76,13 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 
 void initialize(void){
     //red
-    double position[3] = {2.0, 2.0, -5.0};
+    double position[3] = {3.0, 3.0, -5.0};
     double color[3] = {1.0, 0.5, 0.1};
     sphereInitialize(&sphereOne, position, color, 2.0, 1.0, 1.0);
     
     //green
     position[0] = -3.0;
-    position[1] = -4.0;
+    position[1] = -3.0;
     position[2] = -10.0;
     color[0] = 0.1;
     color[1] = 1.0;
@@ -89,19 +90,28 @@ void initialize(void){
     sphereInitialize(&sphereTwo, position, color, 3.0, 1.0, 1.0);
 
     //blue
-    position[0] = -2.0;
-    position[1] = 2.0;
+    position[0] = -3.0;
+    position[1] = 3.0;
     position[2] = -6.0;
     color[0] = 1.0;
     color[1] = 1.0;
     color[2] = 1.0;
-    sphereInitialize(&sphereThree, position, color, 2.0, 2.0, 1.0);
+    sphereInitialize(&sphereThree, position, color, 3.0, 1.0, 1.0);
+    
+    position[0] = 3.0;
+    position[1] = -3.0;
+    position[2] = -6.0;
+    color[0] = 0.5;
+    color[1] = 0.1;
+    color[2] = 1.0;
+    sphereInitialize(&sphereFour, position, color, 2.0, 1.0, 1.0);
     
     
-    objectNum = 3;
+    objectNum = 4;
     sphere[0] = sphereOne;
     sphere[1] = sphereTwo;
     sphere[2] = sphereThree;
+    sphere[3] = sphereFour;
     
     position[0] = -5.0;
     position[1] = -5.0;
@@ -409,19 +419,23 @@ void render(void){
     }
 }
 
+/* Updates the viewing matrix of the camera, applies the inverse viewing matrix to the
+varyings, clears the screen, and renders again. It also has code for a basic rotational 
+animation */
 void handleTimeStep(double oldTime, double newTime) {
 	if (floor(newTime) - floor(oldTime) >= 1.0){
 		printf("handleTimeStep: %f frames/sec\n", 1.0 / (newTime - oldTime));
 	}
-	if(update == 1){
-	    camTheta += 0.1;
-	}
+	if(update == 1)
+	    camTheta += 0.05;
 	camUpdateViewing(&cam);
 	updateVaryings();
 	pixClearRGB(0.0, 0.0, 0.0);
 	render();
 }
 
+/* Simply initializes the window itself, clears it, calls the initializer methods, and starts
+pixRun. */
 int main(void){
     pixSetTimeStepHandler(handleTimeStep);
 	pixSetKeyUpHandler(handleKeyUp);

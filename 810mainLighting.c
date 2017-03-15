@@ -87,7 +87,7 @@ void render(void){
     for(int i = 0; i < height; i += 1){
         for(int j = 0; j < width; j += 1){
             double orig[3] = {0.0, 0.0, 0.0};
-            double screen[3] = {(2.0 * ((double)i / (double)height)) - 1.0, (2.0 * ((double)j / (double)width)) - 3.0, -3.0};
+            double screen[3] = {(2.0 * ((double)i / (double)height)) - 1.0, (2.0 * ((double)j / (double)width)) - 1.0, -1.0};
             double dir[3];
             vecSubtract(3, screen, orig, dir);
             double finalDir[3];
