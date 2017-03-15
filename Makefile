@@ -25,9 +25,6 @@ spiral: 861mainCamera.c
 hexspiral: 862mainDNA.c
 	clang 862mainDNA.c 000pixel.o -lglfw -framework opengl; ./a.out
 
-reflection: 880mainAbstracted.c
-	clang 880mainAbstracted.c 000pixel.o -lglfw -framework opengl; ./a.out
-
 refraction: 920mainRefraction.c
 	clang 920mainRefraction.c 000pixel.o -lglfw -framework opengl; ./a.out
 

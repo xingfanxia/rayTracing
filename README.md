@@ -1,21 +1,19 @@
-### CS 331 Computer Graphics Project: Ray Tracing to draw still images
+## CS 331 Project: Ray Tracing 
 
-### What we have done:
-1. We can draw spheres in a world from a top down camera
-2. We can draw spheres with correct lighting (Diffuse, specular and ambient).
-3. We added depth control.
+@Xingfan Xia, Alex Schneider
 
-### To-Dos:
-1. Do it recursively so we can go down infinityly.
+### What is the Project about?
 
-### Issues:
-1. We have distortions with spheres the further they are away from the center.
-2. Shadow cast randomly. (before reflection)
-3. Randoms lines.
-4. Reflection color is not combined in the manner or not being acquired successfully.
-5. Weird coarse engine.
+Basically our project is trying to modify our previous software engine to implement the computer graphics rendering technique ray tracing. Ray tracing is a technique to generate an image by tracing the path of light through pixels in an image plane and simulating the effects of the its encounters with objects in space. 
+
+The technique is able to produce a very high degree of visual realism in terms of lighting and shadow but with a substantial computational cost. And hence it is most suitable for applications where the image can be rendered slowly ahead rather than rendered in real time. Thus it is used very often if CG cartoon and movie but not in video games which speed is critical.
+
+Ray tracing is capable of simulating a wide range of optical effects, such as reflection, refraction, scattering, dispersion, etc. And in our project, we are trying to make a demo simulating reflection and refraction only.
 
 ### Algorithm
+
+The basic algorithm is detailed below in pesudocode.
+
 ```c
 for every pixel in the scene {
     RayInitialize(from view point, to the pixel);
@@ -47,3 +45,181 @@ for every pixel in the scene {
     }
 }
 ```
+
+### File Organization
+
+```bash
+.
+├── 000pixel.h
+├── 000pixel.o
+├── 800camera.c
+├── 800light.c
+├── 800mainRay.c
+├── 800matrix.c
+├── 800ray.c
+├── 800sphere.c
+├── 800vector.c
+├── 810light.c
+├── 810mainLighting.c
+├── 810ray.c
+├── 820mainDepth.c
+├── 820ray.c
+├── 830mainSpecular.c
+├── 840mainReflection.c
+├── 840ray.c
+├── 840sphere.c
+├── 850mainRecursive.c
+├── 850sphere.c
+├── 851mainRecursive.c
+├── 852mainRecursive.c
+├── 853mainReflection.c
+├── 860camera.c
+├── 860light.c
+├── 860mainCamera.c
+├── 860ray.c
+├── 860sphere.c
+├── 861effect.c
+├── 861mainCamera.c
+├── 862mainDNA.c
+├── 870mainShadow.c
+├── 870sphere.c
+├── 880mainAbstracted.c
+├── 881mainRefraction.c
+├── 890mainTriangle.c
+├── 890pointVary.c
+├── 890ray.c
+├── 890triangle.c
+├── 900mainSpecular.c
+├── 910mainShadow.c
+├── 920mainRefraction.c
+├── 920ray.c
+├── 930mainSmooth.c
+├── 940mainFinal.c
+├── Makefile
+├── README.md
+├── \\.c
+├── a.out
+├── sprintf.c
+├── stb_image.h
+└── untitled
+
+0 directories, 52 files
+
+```
+
+And among these files, the following are benchmarks we thought worth presenting.
+
+```MakeFile
+Ray: 800mainRay.c
+	clang 800mainRay.c 000pixel.o -lglfw -framework opengl; ./a.out
+	
+This is the most primitive version of the ray tracing engine we are implementing. It does not include any light calculation which makes it looks flat and unrealistic.
+=========================================================
+
+Lighting: 810mainLighting.c
+	clang 810mainLighting.c 000pixel.o -lglfw -framework opengl; ./a.out
+	
+In this version, we added diffuse lighting to give the spheres a sense of three dimensionality and it looks much more realistic than the pervious versions
+=========================================================
+
+Depth: 820mainDepth.c
+	clang 820mainDepth.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+In this version, we introduce depth into the engine so there nearer object is covering further ones.
+=========================================================
+
+specular: 830mainSpecular.c
+	clang 830mainSpecular.c 000pixel.o -lglfw -framework opengl; ./a.out
+	
+In this version, we added specular lighting to make the engine more realistic.
+=========================================================
+
+recursive: 852mainRecursive.c
+	clang 852mainRecursive.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+In this version, we introduce the recursive component so the light keeps bouncing between objects until no intersection happens which makes the reflection more realistic.
+=========================================================
+
+spaceworm: 861effect.c
+	clang 861effect.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+This is a little funny program we made out of accident. But it looks pretty cool so we include it here.
+=========================================================
+
+camera: 860mainCamera.c
+	clang 860mainCamera.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+In this version we introduced camera controls to the engine.
+=========================================================
+
+spiral: 861mainCamera.c
+	clang 861mainCamera.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+This is one of demo we made to show ray tracing to the class.
+=========================================================
+
+hexspiral: 862mainDNA.c
+	clang 862mainDNA.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+A more polished and interesting demo mimicing the rotation of DNA rotating.
+=========================================================
+
+reflection: 880mainAbstracted.c
+	clang 880mainAbstracted.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+We abstracted the code here.
+=========================================================
+
+refraction: 920mainRefraction.c
+	clang 920mainRefraction.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+We included refraction in the engine.
+=========================================================
+
+final: 940mainFinal.c
+	clang 940mainFinal.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+A more polished version of 920mainRefraction.
+=========================================================
+```
+
+To run these files, just follow the `MakeFile` here:
+
+```Make
+Ray: 800mainRay.c
+	clang 800mainRay.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+Lighting: 810mainLighting.c
+	clang 810mainLighting.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+Depth: 820mainDepth.c
+	clang 820mainDepth.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+specular: 830mainSpecular.c
+	clang 830mainSpecular.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+recursive: 852mainRecursive.c
+	clang 852mainRecursive.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+spaceworm: 861effect.c
+	clang 861effect.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+camera: 860mainCamera.c
+	clang 860mainCamera.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+spiral: 861mainCamera.c
+	clang 861mainCamera.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+hexspiral: 862mainDNA.c
+	clang 862mainDNA.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+refraction: 920mainRefraction.c
+	clang 920mainRefraction.c 000pixel.o -lglfw -framework opengl; ./a.out
+
+final: 940mainFinal.c
+	clang 940mainFinal.c 000pixel.o -lglfw -framework opengl; ./a.out
+	
+run: a.out
+	./a.out
+```
+
