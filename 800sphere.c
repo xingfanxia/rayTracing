@@ -1,3 +1,4 @@
+/* contains a position color and radius */
 typedef struct sphereSphere sphereSphere;
 struct sphereSphere{
     double position[3];
@@ -5,6 +6,7 @@ struct sphereSphere{
     double radius;
 };
 
+/* simply sets all of its variables */
 void sphereInitialize(sphereSphere *sphere, double pos[3], double col[3], double r){
     sphere->position[0] = pos[0];
     sphere->position[1] = pos[1];

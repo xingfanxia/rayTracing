@@ -10,6 +10,8 @@
 #include "800sphere.c"
 #include "810light.c"
 
+/* All of the global variables. The objects to be drawn, the size of the screen, and a few
+arrays for use later. Now includes a lightLight struct for lighting. */
 lightLight light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
@@ -23,8 +25,11 @@ int objectNum;
 
 #include "820ray.c"
 
+/* The one ray will be reinitialized for every pixel in the screen */
 rayRay ray;
 
+/* Initializes all of the spheres and adds them to the array of spheres. Also initializes
+the light in the scene */
 void initialize(void){
     //red
     double position[3] = {2.0, 1.8, -5.0};
@@ -74,6 +79,7 @@ void initialize(void){
     sphere[3] = sphereFour;
     sphere[4] = sphereFive;
     
+    //light
     position[0] = -5.0;
     position[1] = -5.0;
     position[2] = 5.0;
@@ -83,6 +89,9 @@ void initialize(void){
     lightInitialize(&light, position, color);
 }
 
+/* initializes one ray for every pixel and tests whether or not it intersects a sphere.
+If it does the color is treated with diffuse lighting so the spheres will look 3 
+dimensional. */
 void render(void){
     /* Two for loops to go over every pixel */
     for(int i = 0; i < height; i += 1){
@@ -110,17 +119,13 @@ void render(void){
                         rgb[0] = sphere[k].color[0];
                         rgb[1] = sphere[k].color[1];
                         rgb[2] = sphere[k].color[2];
-                    
-                        //printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
-                    
+                                      
+                        //applies diffuse lighting to the intersection point               
                         double lightNormal[3];
                         double unitLightNormal[3];
                         vecSubtract(3, light.translation, ray.intersection, lightNormal);
                         vecUnit(3, lightNormal, unitLightNormal);
-                        //printf("light normal: %f, %f, %f\n", unitLightNormal[0], unitLightNormal[1], unitLightNormal[2]);
-                        //printf("object normal: %f, %f, %f\n", ray.normal[0], ray.normal[1], ray.normal[2]);
                         double difIntensity = vecDot(3, unitLightNormal, ray.normal);
-                        //printf("difIntensity: %f\n", difIntensity);
                     
                         if(difIntensity < 0.1){
                             difIntensity = 0.1;
@@ -129,7 +134,6 @@ void render(void){
                         rgb[0] = rgb[0] * difIntensity * light.color[0];
                         rgb[1] = rgb[1] * difIntensity * light.color[1];
                         rgb[2] = rgb[2] * difIntensity * light.color[2];
-                        //printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
                         pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
                     }
                 }
@@ -138,6 +142,8 @@ void render(void){
     }
 }
 
+/* The main method creates the window, sets it all to black, calls the initialize method
+and the render method. */
 int main(void){
     if (pixInitialize(width, height, "Ray Tracing") != 0)
 		return 1;

@@ -14,7 +14,9 @@
 #include "800matrix.c"
 #include "860sphere.c"
 #include "860light.c"
-
+/* All of the global variables. The objects to be drawn, the size of the screen, and a few
+arrays for use later. Now includes a lightLight struct for lighting and a camera object
+for interaction. */
 lightLight light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
@@ -34,11 +36,14 @@ double camTheta;
 #include "860camera.c"
 #include "860ray.c"
 
-rayRay ray;
 camCamera cam;
 int update = 0;
 
+/* The one ray will be reinitialized for every pixel in the screen */
+rayRay ray;
 
+/* The key handler from our software engine. It rotates and translates the camera when the
+wasdeq buttons are pressed. */
 void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 		int altOptionIsDown, int superCommandIsDown) {
 	printf("key up %d, shift %d, control %d, altOpt %d, supComm %d\n",
@@ -75,6 +80,8 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 		}
 }
 
+/* Initializes all of the spheres and adds them to the array of spheres. Also initializes
+the light in the scene */
 void initialize(void){
     //red
     double position[3] = {2.0, 1.8, -10.0};
@@ -124,6 +131,7 @@ void initialize(void){
     sphere[3] = sphereFour;
     sphere[4] = sphereFive;
     
+    //light    
     position[0] = -5.0;
     position[1] = -5.0;
     position[2] = 5.0;
@@ -132,6 +140,7 @@ void initialize(void){
     color[2] = 1.0;
     lightInitialize(&light, position, color);
     
+    //camera
     camRho = 5.0;
     camPhi = 0.0;
     camTheta = 0.0;
@@ -141,6 +150,9 @@ void initialize(void){
     camUpdateViewing(&cam);
 }
 
+/* initializes one ray for every pixel and tests whether or not it intersects a sphere.
+If it does the color is treated with diffuse lighting and now specular lighting so the
+ spheres will look 3 dimensional. */
 void render(void){
     /* Two for loops to go over every pixel */
     for(int i = 0; i < height; i += 1){
@@ -168,18 +180,13 @@ void render(void){
                         rgb[0] = sphere[k].color[0];
                         rgb[1] = sphere[k].color[1];
                         rgb[2] = sphere[k].color[2];
-                    
-                        //printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
-                    
+                                        
                         double lightNormal[3];
                         double unitLightNormal[3];
                         vecSubtract(3, light.varying, ray.intersection, lightNormal);
                         vecUnit(3, lightNormal, unitLightNormal);
-                        //printf("light normal: %f, %f, %f\n", unitLightNormal[0], unitLightNormal[1], unitLightNormal[2]);
-                        //printf("object normal: %f, %f, %f\n", ray.normal[0], ray.normal[1], ray.normal[2]);
                         double difIntensity;
                         double dot = vecDot(3, unitLightNormal, ray.normal);
-                        //printf("difIntensity: %f\n", difIntensity);
                     
                         if(dot < 0.1)
                             difIntensity = 0.1;
@@ -212,7 +219,6 @@ void render(void){
                         rgb[0] = rgb[0] * difIntensity * light.color[0] + specIntensity;
                         rgb[1] = rgb[1] * difIntensity * light.color[1] + specIntensity;
                         rgb[2] = rgb[2] * difIntensity * light.color[2] + specIntensity;
-                        //printf("color: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
                         pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
                     }
                 }
@@ -221,6 +227,8 @@ void render(void){
     }
 }
 
+/* updates the varyings in the sphere and light structs based on the viewing matrix
+contained in the camera struct */
 void updateVaryings(void){
     for(int i = 0; i < objectNum; i += 1){
         double transformVec[4] = {sphere[i].position[0], sphere[i].position[1], 
@@ -238,26 +246,27 @@ void updateVaryings(void){
     light.varying[0] = lightVary[0];
     light.varying[1] = lightVary[1];
     light.varying[2] = lightVary[2];
-    //printf("light: %f, %f, %f\n", light.varying[0], light.varying[1], light.varying[2]);
 }
 
+/* The handle time step from the software engine. Every time it updates the viewing matrix
+of the camera if there's been a change indicated by the update variable. it also updates
+the varyings, clears the screen, and renders again. */
 void handleTimeStep(double oldTime, double newTime) {
 	if (floor(newTime) - floor(oldTime) >= 1.0){
 		printf("handleTimeStep: %f frames/sec\n", 1.0 / (newTime - oldTime));
-		/*printf("theta: %f\n", nodeD.unif[renUNIFTHETA]);
-        printf("alpha: %f\n", nodeD.unif[renUNIFALPHA]);
-        printf("phi: %f\n", nodeD.unif[renUNIFPHI]);*/
 	}
-	//if(update == 1){
+	if(update == 1){
 	    update = 0;
 	    camTheta += 0.1;
 	    camUpdateViewing(&cam);
 	    updateVaryings();
 	    pixClearRGB(0.0, 0.0, 0.0);
 	    render();
-	//}
+	}
 }
 
+/* The main method creates the window, sets it all to black, calls the initialize method
+and the render method. Now includes the update viewing and update varyings calls. */
 int main(void){
     pixSetTimeStepHandler(handleTimeStep);
 	pixSetKeyUpHandler(handleKeyUp);

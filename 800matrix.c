@@ -4,6 +4,8 @@ Graphics*/
 
 /*** 2 x 2 Matrices ***/
 
+/* Taken directly from the software engine */
+
 /* Pretty-prints the given matrix, with one line of text per row of matrix. */
 void mat22Print(double m[2][2]) {
 	printf("%f %f\n", m[0][0], m[0][1]);

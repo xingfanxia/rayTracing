@@ -14,6 +14,8 @@
 #include "840sphere.c"
 #include "810light.c"
 
+/* All of the global variables. The objects to be drawn, the size of the screen, and a few
+arrays for use later. Now includes a lightLight struct for lighting. */
 lightLight light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
@@ -26,8 +28,11 @@ double camPos[3] = {0.0, 0.0, 0.0};
 
 #include "840ray.c"
 
+/* The one ray will be reinitialized for every pixel in the screen */
 rayRay ray;
 
+/* Initializes all of the spheres and adds them to the array of spheres. Also initializes
+the light in the scene */
 void initialize(void){
     //red
     double position[3] = {2.0, 2.0, -5.0};
@@ -58,6 +63,7 @@ void initialize(void){
     sphere[1] = sphereTwo;
     sphere[2] = sphereThree;
     
+    //light
     position[0] = -5.0;
     position[1] = -5.0;
     position[2] = 5.0;
@@ -72,7 +78,6 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
     colorinfo[0] = sphere[k].color[0];
     colorinfo[1] = sphere[k].color[1];
     colorinfo[2] = sphere[k].color[2];
-    //printf("sphere color: %f, %f, %f\n", colorinfo[0], colorinfo[1], colorinfo[2]);
                 
     double lightNormal[3];
     double unitLightNormal[3];
@@ -154,6 +159,9 @@ void combineColors(double pointCol[3], double reflectionCol[3], sphereSphere sph
     }
 }
 
+/* New abstracted method to check if the ray intersects a sphere and then apply lighting 
+to the closest sphere intersected. Also applies reflection to each ray that encounters a
+sphere by calling itself after initializing a reflection ray */
 int traceRay(rayRay *ray, int depth, double rgb[3]){
     int toReturn = 0;
     int reflection = 0;
@@ -168,22 +176,19 @@ int traceRay(rayRay *ray, int depth, double rgb[3]){
         if(depthPotential != -1 && depthPotential < depth){
             toReturn = 1;
             depth = depthPotential;
-            //printf("point Color before: %f, %f, %f\n", pointColor[0], pointColor[1], pointColor[2]);
             lighting(pointColor, ray, i);
-            //printf("point Color after: %f, %f, %f\n", pointColor[0], pointColor[1], pointColor[2]);
         
-            //printf("yes\n");
             getReflectionRay(ray, &rayTwo);
-            //printf("reflection color before: %f, %f, %f\n", reflectionColor[0], reflectionColor[1], reflectionColor[2]);
             reflection = traceRay(&rayTwo, 1000000, reflectionColor);
 
             combineColors(pointColor, reflectionColor, sphere[i], reflection, rgb);
-            //printf("rgb: %f, %f, %f\n", rgb[0], rgb[1], rgb[2]);
         }
     }
     return toReturn;
 }
 
+/* initializes one ray for every pixel and sends it off to traceRay to do the intersection
+and lighting work */
 void render(void){
     /* Two for loops to go over every pixel */
     for(int i = 0; i < height; i += 1){
@@ -198,16 +203,14 @@ void render(void){
 
             double rgb[3] = {0.5, 0.1, 0.5};
             
-            /* Loops over every sphere in the program and tests whether each ray intersects.
-            The ray intersection method returns the depth of the object. The depth is used
-            to know which object to draw at each pixel. */
-            //printf("pixel: %d, %d\n", i, j);
             traceRay(&ray, 1000000, rgb);       
             pixSetRGB(i, j, rgb[0], rgb[1], rgb[2]);
         }
     }
 }
 
+/* The main method creates the window, sets it all to black, calls the initialize method
+and the render method. */
 int main(void){
     if (pixInitialize(width, height, "Ray Tracing") != 0)
 		return 1;

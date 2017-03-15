@@ -14,6 +14,8 @@
 #include "840sphere.c"
 #include "810light.c"
 
+/* All of the global variables. The objects to be drawn, the size of the screen, and a few
+arrays for use later. Now includes a lightLight struct for lighting. */
 lightLight light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
@@ -26,8 +28,11 @@ double camPos[3] = {0.0, 0.0, 0.0};
 
 #include "840ray.c"
 
+/* The one ray will be reinitialized for every pixel in the screen */
 rayRay ray;
 
+/* Initializes all of the spheres and adds them to the array of spheres. Also initializes
+the light in the scene */
 void initialize(void){
     //red
     double position[3] = {2.0, 2.0, -5.0};
@@ -146,14 +151,9 @@ intersected. The reflection color is scaled by the reflectiveness of the sphere 
 void combineColors(double pointColor[3], double reflectionColor[3], sphereSphere sphere,
         double rgb[3]){
     if(sphere.reflection > 0.0){
-        // printf("colors are combined\n");
         rgb[0] = pointColor[0] * (reflectionColor[0] * sphere.reflection);
         rgb[1] = pointColor[1] * (reflectionColor[1] * sphere.reflection);
-        rgb[2] = pointColor[2] * (reflectionColor[2] * sphere.reflection);
-        // printf("reflection color: %f, %f, %f\n", reflectionColor[0] - pointColor[0], reflectionColor[1] - pointColor[1], reflectionColor[2] - pointColor[2]);   
-        // rgb[0] = (reflectionColor[0] * sphere.reflection);
-        // rgb[1] = (reflectionColor[1] * sphere.reflection);
-        // rgb[2] = (reflectionColor[2] * sphere.reflection);        
+        rgb[2] = pointColor[2] * (reflectionColor[2] * sphere.reflection);       
     }
     else{
         rgb[0] = pointColor[0];
@@ -162,6 +162,9 @@ void combineColors(double pointColor[3], double reflectionColor[3], sphereSphere
     }
 }
 
+/* initializes one ray for every pixel and tests whether or not it intersects a sphere.
+If it does the color is treated with diffuse lighting and now specular lighting so the
+ spheres will look 3 dimensional. */
 void render(void){
     /* Two for loops to go over every pixel */
     for(int i = 0; i < height; i += 1){
@@ -199,10 +202,8 @@ void render(void){
                             double depthPotReflect = rayIntersectionAttempt(&ray, &sphere[l]);
                             if(depthPotReflect != -1 && depthPotReflect < depthReflect){
                                 depthReflect = depthPotReflect;
-                                printf("reflection color 1: %f, %f, %f\n", reflectionColor[0], reflectionColor[1] , reflectionColor[2]); 
                                 lighting(reflectionColor, ray, l);
                                 combineColors(pointColor, reflectionColor, sphere[k], rgb);
-                                printf("reflection color 2: %f, %f, %f\n", reflectionColor[0], reflectionColor[1] , reflectionColor[2]); 
                             }
                         }
                     }
@@ -213,6 +214,8 @@ void render(void){
     }
 }
 
+/* The main method creates the window, sets it all to black, calls the initialize method
+and the render method. */
 int main(void){
     if (pixInitialize(width, height, "Ray Tracing") != 0)
 		return 1;

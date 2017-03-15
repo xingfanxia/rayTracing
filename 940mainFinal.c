@@ -14,6 +14,10 @@
 #include "870sphere.c"
 #include "860light.c"
 
+/* All of the global variables. The objects to be drawn, the size of the screen, and a few
+arrays for use later. Now the light is provided by a sphere struct that isn't placed in 
+the array of spheres. Also has a bounce integer which determines how deep the recursive
+calls will go. */
 sphereSphere light;
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
@@ -33,10 +37,13 @@ int bounce = 4;
 #include "860camera.c"
 #include "920ray.c"
 
+/* The one ray will be reinitialized for every pixel in the screen */
 rayRay ray;
 camCamera cam;
 int update = 0;
 
+/* The key handler from our software engine. It rotates and translates the camera when the
+wasdeq buttons are pressed. Now f turns animation on and off.*/
 void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 		int altOptionIsDown, int superCommandIsDown) {
 	printf("key up %d, shift %d, control %d, altOpt %d, supComm %d\n",
@@ -74,6 +81,8 @@ void handleKeyUp(int key, int shiftIsDown, int controlIsDown,
 		}
 }
 
+/* Initializes all of the spheres and adds them to the array of spheres. Also initializes
+the light in the scene */
 void initialize(void){
     //red
     double position[3] = {3.0, 3.0, -5.0};
@@ -89,7 +98,7 @@ void initialize(void){
     color[2] = 0.5;
     sphereInitialize(&sphereTwo, position, color, 3.0, 1.0, 1.0);
 
-    //blue
+    //white
     position[0] = -3.0;
     position[1] = 3.0;
     position[2] = -6.0;
@@ -98,6 +107,7 @@ void initialize(void){
     color[2] = 1.0;
     sphereInitialize(&sphereThree, position, color, 3.0, 1.0, 1.0);
     
+    //blue
     position[0] = 3.0;
     position[1] = -3.0;
     position[2] = -6.0;
@@ -106,13 +116,13 @@ void initialize(void){
     color[2] = 1.0;
     sphereInitialize(&sphereFour, position, color, 2.0, 1.0, 1.0);
     
-    
     objectNum = 4;
     sphere[0] = sphereOne;
     sphere[1] = sphereTwo;
     sphere[2] = sphereThree;
     sphere[3] = sphereFour;
     
+    //lighting
     position[0] = -5.0;
     position[1] = -5.0;
     position[2] = 5.0;
@@ -121,6 +131,7 @@ void initialize(void){
     color[2] = 1.0;
     sphereInitialize(&light, position, color, 2.0, 0.0, 0.0);
     
+    //camera
     camRho = 5.0;
     camPhi = 0.0;
     camTheta = 0.0;
@@ -130,7 +141,9 @@ void initialize(void){
     camUpdateViewing(&cam);
 }
 
-/* Applies diffuse and specular lighting to each ray that's drawn */
+/* Applies diffuse and specular lighting to each ray that's drawn. Specular lighting is 
+whether or not the reflected ray intersects the light sphere. Also shadowing is achieved 
+checking if the ray from the sphere from the light intersects any spheres on the way. */
 void lighting(double colorinfo[3], rayRay *ray, int k){
     colorinfo[0] = sphere[k].color[0];
     colorinfo[1] = sphere[k].color[1];
@@ -148,7 +161,8 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
         difIntensity = 0.1;
     else
         difIntensity = dot;
-                     
+    
+    //specular intersection               
     double camDir[3];
     double unitCamDir[3];
                         
@@ -176,6 +190,7 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
                         
     specIntensity = pow(specIntensity, 50);
     
+    //shadowing
     double dir[3];
     double unitDir[3];
     vecSubtract(3, light.position, ray->intersection, dir);
@@ -194,6 +209,8 @@ void lighting(double colorinfo[3], rayRay *ray, int k){
     colorinfo[2] = colorinfo[2] * difIntensity * light.color[2] + specIntensity;
 }
 
+/* updates the varyings in the sphere and light structs based on the viewing matrix
+contained in the camera struct */
 void updateVaryings(void){
     for(int i = 0; i < objectNum; i += 1){
         double transformVec[4] = {sphere[i].position[0], sphere[i].position[1], 
@@ -293,7 +310,9 @@ void getRefractionRay(rayRay *ray, rayRay *rayTwo, int index, double refractionE
 }
 
 /* This combines the reflection color and the point color of the sphere that's been
-intersected. The reflection color is scaled by the reflectiveness of the sphere in question. */
+intersected. The reflection color is scaled by the reflectiveness of the sphere in question. 
+If there's reflection and refraction then a fresnel ratio is used to get the amount of
+reflected and refracted light*/
 void combineColors(double pointCol[3], double reflectionCol[3], double refractionCol[3],
         sphereSphere sphere, int reflection, int refraction, double rgbCol[3],
         rayRay *ray, double fresnel){
@@ -322,6 +341,8 @@ void combineColors(double pointCol[3], double reflectionCol[3], double refractio
     }
 }
 
+/* Calculates the fresnel ratio for any given vector going into a sphere. The index of 
+reflection is approximately that of glass. */
 double fresnelRatio(rayRay *ray, sphereSphere *sphere){
     double normal[3] = {ray->normal[0], ray->normal[1], ray->normal[2]};
     double dot = vecDot(3, ray->direction, ray->normal);
@@ -357,6 +378,10 @@ double fresnelRatio(rayRay *ray, sphereSphere *sphere){
     return fres;
 }
 
+/* New abstracted method to check if the ray intersects a sphere and then apply lighting 
+to the closest sphere intersected. Also applies reflection to each ray that encounters a
+sphere by calling itself after initializing a reflection ray. Now it creates a refraction
+ray if there's an intersection. */
 int traceRay(rayRay *ray, int index, int depth, double rgb[3], int bounced){
     int toReturn = 0;
     rayRay rayTwo;
@@ -366,6 +391,9 @@ int traceRay(rayRay *ray, int index, int depth, double rgb[3], int bounced){
     int refraction = 0;
     int depthPotential;
     
+    /* The test is whether the depth is less than any previous depth and whether it's 
+    under the limit of recursive calls. Then the reflection color and refraction color
+    are calculated. */
     for(int i = 0; i < objectNum; i += 1){
         double pointColor[3] = {0.0, 0.0, 0.0};
         double reflectionColor[3] = {0.0, 0.0, 0.0};
@@ -396,6 +424,8 @@ int traceRay(rayRay *ray, int index, int depth, double rgb[3], int bounced){
     return toReturn;
 }
 
+/* initializes one ray for every pixel and sends it off to traceRay to do the intersection
+and lighting work */
 void render(void){
     /* Two for loops to go over every pixel */
     for(int i = 0; i < height; i += 1){

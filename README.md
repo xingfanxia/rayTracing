@@ -173,7 +173,7 @@ We abstracted the code here.
 refraction: 920mainRefraction.c
 	clang 920mainRefraction.c 000pixel.o -lglfw -framework opengl; ./a.out
 
-We included refraction in the engine.
+We included refraction in the engine. Also the specular lighting involves intersection with a sphere designated as the light as opposed to defining the light as a point.
 =========================================================
 
 final: 940mainFinal.c
@@ -227,5 +227,13 @@ run: a.out
 
 [Raytracing Reflection, Refraction, Fresnel, Total Internal Reflection, and Beer’s Law](http://blog.demofox.org/2017/01/09/raytracing-reflection-refraction-fresnel-total-internal-reflection-and-beers-law/)
 
+[More Refraction](https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel)
+
+[Triangle Intersection](https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle)
+
 [Ray Tracing](https://www.cs.utah.edu/~shirley/books/fcg2/rt.pdf)
+
+[General Code Structure](https://www.cs.unc.edu/~rademach/xroads-RT/RTarticle.html)
+
+
 

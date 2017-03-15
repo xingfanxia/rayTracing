@@ -1,3 +1,5 @@
+/* has an origin, a direction, an intersection point, and a normal vector. Now has a 
+reflection value that's set to one if it's a reflection ray */
 typedef struct rayRay rayRay;
 struct rayRay{
     double origin[3];
@@ -7,6 +9,7 @@ struct rayRay{
     int reflection;
 };
 
+/* intersection point and normal vector aren't set until the intersection attempt */
 void rayInitialize(rayRay *ray, double orig[3], double dir[3], int reflect){
     ray->origin[0] = orig[0];
     ray->origin[1] = orig[1];
@@ -23,7 +26,8 @@ void rayInitialize(rayRay *ray, double orig[3], double dir[3], int reflect){
     ray->reflection = reflect;
 }
 
-
+/* Tests for intersection with a sphere and finds the intersection point in space and 
+the normal vector on the surface of the sphere. The depth of the intersection is returned */
 int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double l[3];
     vecSubtract(3, sphere->position, ray->origin, l);

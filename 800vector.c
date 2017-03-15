@@ -2,6 +2,8 @@
 01-07-17
 Graphics*/
 
+/* Taken directly from the software engine */
+
 /* Copies the dim-dimensional vector v to the dim-dimensional vector copy. */
 void vecCopy(int dim, double v[], double copy[]) {
 	for(int i = 0; i < dim; i += 1){

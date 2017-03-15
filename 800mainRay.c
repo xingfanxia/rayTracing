@@ -9,7 +9,8 @@
 #include "800matrix.c"
 #include "800sphere.c"
 
-
+/* All of the global variables. The objects to be drawn, the size of the screen, and a few
+arrays for use later. */
 sphereSphere sphereOne;
 sphereSphere sphereTwo;
 sphereSphere sphereThree;
@@ -25,8 +26,10 @@ double camPos[3] = {0.0, 0.0, 0.0};
 
 #include "800ray.c"
 
+/* The one ray will be reinitialized for every pixel in the screen */
 rayRay ray;
 
+/* Initializes all of the spheres and adds them to the array of spheres */
 void initialize(void){
     double position[3] = {2.0, 5.0, -6.0};
     double color[3] = {1.0, 0.5, 0.0};
@@ -73,6 +76,8 @@ void initialize(void){
     sphere[4] = sphereFive;
 }
 
+/* initializes one ray for every pixel and tests whether or not it intersects a sphere.
+If it does the pixel is set to the color of the sphere. */
 void render(void){
     for(int i = 0; i < height; i += 1){
         for(int j = 0; j < width; j += 1){
@@ -98,6 +103,8 @@ void render(void){
     }
 }
 
+/* The main method creates the window, sets it all to black, calls the initialize method
+and the render method. */
 int main(void){
     if (pixInitialize(width, height, "Ray Tracing") != 0)
 		return 1;

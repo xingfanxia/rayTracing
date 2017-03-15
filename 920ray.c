@@ -1,3 +1,4 @@
+/* has an origin, a direction, an intersection point, and a normal vector */
 typedef struct rayRay rayRay;
 struct rayRay{
     double origin[3];
@@ -6,6 +7,7 @@ struct rayRay{
     double normal[3];
 };
 
+/* intersection point and normal vector aren't set until the intersection attempt */
 void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
     ray->origin[0] = orig[0];
     ray->origin[1] = orig[1];
@@ -21,7 +23,8 @@ void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
     ray->normal[2] = 0.0;
 }
 
-
+/* Tests for intersection with a sphere and finds the intersection point in space and 
+the normal vector on the surface of the sphere. The depth of the intersection is returned */
 int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double l[3];
     vecSubtract(3, sphere->varying, ray->origin, l);
@@ -51,6 +54,9 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     return vecLength(3, vecDepth);
 }
 
+/* Assumes that the ray is pointing into a sphere and returns tOne instead of tZero 
+tZero is the origin of the ray that's passed in. This method is only used by refractionRay
+because the two rays are required. One for entering the spheres and one exiting. */
 int rayInternalIntersection(rayRay *ray, sphereSphere *sphere){
     double l[3];
     vecSubtract(3, sphere->varying, ray->origin, l);
@@ -69,7 +75,6 @@ int rayInternalIntersection(rayRay *ray, sphereSphere *sphere){
         tZero = tOne;
         tOne = temp;
     }
-    //printf("tZero: %f tOne: %f\n", tZero, tOne);
     double tTimesDir[3];
     double normal[3];
     vecScale(3, tOne, ray->direction, tTimesDir);

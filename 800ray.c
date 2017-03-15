@@ -1,9 +1,11 @@
+/* has an origin and a direction */
 typedef struct rayRay rayRay;
 struct rayRay{
     double origin[3];
     double direction[3];
 };
 
+/* sets the origin and direction */
 void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
     ray->origin[0] = orig[0];
     ray->origin[1] = orig[1];
@@ -13,6 +15,8 @@ void rayInitialize(rayRay *ray, double orig[3], double dir[3]){
     ray->direction[2] = dir[2];
 }
 
+/* one version of ray intersection of a sphere. Returns 0 if there's an intersection and 
+-1 if there's not. Taken from https://www.cs.unc.edu/~rademach/xroads-RT/RTarticle.html */
 int rayIntersection(rayRay *ray, sphereSphere *sphere){
     double c[3];
     vecSubtract(3, sphere->position, ray->origin, c);
@@ -35,11 +39,11 @@ int rayIntersection(rayRay *ray, sphereSphere *sphere){
     }
 }
 
+/* Another attempt to intersect a vector with a sphere */
 int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     double l[3];
     vecSubtract(3, sphere->position, camPos, l);
     double tca = vecDot(3, l, ray->direction);
-    //printf("tca: %f\n", tca);
     if(tca < 0)
         return -1;
     double dTwo = vecDot(3, l, l) - (tca * tca);
@@ -47,19 +51,4 @@ int rayIntersectionAttempt(rayRay *ray, sphereSphere *sphere){
     if(dTwo > radiusSquared)
         return -1;
     return 0;
-    /*double thc = sqrt(radiusSquared - dTwo);
-    double tZero = tca - thc; 
-    double tOne = tca + thc;
-    if(tZero > tOne){
-        double temp = tZero;
-        tZero = tOne;
-        tOne = temp;
-    }
-    double tTimesDir[3];
-    double normal[3];
-    vecScale(3, tZero, ray->direction, tTimesDir);
-    vecAdd(3, camPos, tTimesDir, objectPoint);
-    vecSubtract(3, objectPoint, sphere->position, normal);
-    vecUnit(3, normal, objectNormal);
-    return 0;*/
 }
